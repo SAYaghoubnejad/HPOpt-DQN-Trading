@@ -1,3 +1,10 @@
+from botorch.fit import fit_gpytorch_model
+from botorch.models import SingleTaskGP
+from botorch.acquisition.monte_carlo import qNoisyExpectedImprovement
+from botorch.optim import optimize_acqf
+from gpytorch.mlls import ExactMarginalLogLikelihood
+from botorch.acquisition import UpperConfidenceBound, qExpectedImprovement
+
 # Importing DataLoaders for each model. These models include rule-based, vanilla DQN and encoder-decoder DQN.
 from DataLoader.DataLoader import YahooFinanceDataLoader
 from DataLoader.DataForPatternBasedAgent import DataForPatternBasedAgent
@@ -19,26 +26,86 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import torch
-import argparse
 from tqdm import tqdm
 import os
 from utils import save_pkl, load_pkl
 
-parser = argparse.ArgumentParser(description='DQN-Trader arguments')
-parser.add_argument('--dataset-name', default="BTC-USD",
-                    help='Name of the data inside the Data folder')
-parser.add_argument('--nep', type=int, default=30,
-                    help='Number of episodes')
-parser.add_argument('--window_size', type=int, default=3,
-                    help='Window size for sequential models')
-parser.add_argument('--cuda', action="store_true",
-                    help='run on CUDA (default: False)')
-args = parser.parse_args()
+class BayesianOptimizer:
+    def __init__(self, objective_function, bounds, types, X_init=None, Y_init=None):
+        self.function = objective_function
+        self.bounds = bounds
+        self.types = types
+        if (X_init == None) ^ (Y_init == None):
+            print('Warning: X_init and Y_init should be given.')
+        self.X = X_init
+        self.Y = Y_init
+        self.x_dim = bounds.shape[1]
+        self.best = None
+        self.min_lose = torch.inf
+        self.history = {'X': [], 'Y': []}
+
+    def generate_random_tensor(self, n_sample=1):
+        tensor = torch.rand((n_sample, self.x_dim), dtype=torch.float64)
+
+        for dim in range(self.x_dim):
+            lower, upper = self.bounds.T[dim]
+            tensor[:, dim] = tensor[:, dim] * (upper - lower) + lower
+            tensor[:, dim] = tensor[:, dim].to(self.types[dim])
+        return tensor
+
+    def initialize_data(self, n_init_points=5):
+        # Generate initial data
+        X_init = self.generate_random_tensor(n_init_points)
+        Y_init = torch.empty((n_init_points, 1), dtype=torch.float64)
+        for index in range(n_init_points):
+            Y_init[index][0] = self.function(X_init[index].flatten())
+        return X_init, Y_init
+
+    def fit_model(self, X, Y):
+        self.model = SingleTaskGP(X, Y)
+        mll = ExactMarginalLogLikelihood(self.model.likelihood, self.model)
+        fit_gpytorch_model(mll)
+
+    def select_next_point(self, acquisition_func):
+        # Placeholder for the acquisition function selection logic
+        # This is where GP-Hedge, No-Past-BO, and SETUP-BO would be implemented
+        if acquisition_func == "UCB":
+            acq_func = UpperConfidenceBound(self.model, beta=0.1)
+        elif acquisition_func == "EI":
+            acq_func = qExpectedImprovement(self.model, best_f=self.function.optimal_value)
+        # Add other acquisition functions as needed
+        next_point, _ = optimize_acqf(
+            acq_func, bounds=self.bounds, q=1, num_restarts=5, raw_samples=20
+        )
+        return next_point
+
+    def simple_BO(self, n_steps=10, acquisition_func="UCB", n_init_points=5):
+        if self.X == None or self.Y == None:
+            self.X, self.Y = self.initialize_data(n_init_points)
+        self.min_lose = torch.max(self.Y)
+        self.best = self.X[torch.where(self.Y == self.min_lose, 1.0, 0.0).to(torch.int)]
+        self.history['X'].append(self.best)
+        self.history['Y'].append(self.min_lose.item())
+        pbar = tqdm(n_steps)
+        for _ in range(n_steps):
+            self.fit_model(self.X, self.Y)
+            next_point = self.select_next_point(acquisition_func).flatten()
+            Y_next = torch.tensor([self.function(next_point)])
+            self.X = torch.vstack((self.X, next_point))
+            self.Y = torch.vstack((self.Y, Y_next))
+            if Y_next.item() > self.min_lose:
+                self.min_lose = Y_next.item()
+                self.best = next_point
+            self.history['X'].append(self.best)
+            self.history['Y'].append(self.min_lose)
+            pbar.update(1)
+        pbar.close()
+        return self.best
 
 DATA_LOADERS = {
     'BTC-USD': YahooFinanceDataLoader('BTC-USD',
-                                      split_point='2018-01-01',
-                                      load_from_file=True),
+                                      split_point='2022-01-01',
+                                      load_from_file=False),
 
     'GOOGL': YahooFinanceDataLoader('GOOGL',
                                     split_point='2018-01-01',
@@ -159,8 +226,7 @@ class SensitivityRun:
         self.deep_cnn = None
         self.cnn_gru = None
         self.cnn_attn = None
-        self.experiment_path = os.path.join(os.path.abspath(os.path.dirname(__file__)),
-                                            'Results/' + self.evaluation_parameter + '/')
+        self.experiment_path = os.path.join(os.getcwd(), 'Results/' + self.evaluation_parameter + '/')
         if not os.path.exists(self.experiment_path):
             os.makedirs(self.experiment_path)
 
@@ -492,6 +558,8 @@ class SensitivityRun:
             key = self.batch_size
         elif self.evaluation_parameter == 'replay memory size':
             key = self.replay_memory_size
+        else:
+            key = f'{self.gamma}_{self.batch_size}_{self.replay_memory_size}'
 
         self.test_portfolios['DQN-pattern'][key] = self.dqn_pattern.test().get_daily_portfolio_value()
         self.test_portfolios['DQN-vanilla'][key] = self.dqn_vanilla.test().get_daily_portfolio_value()
@@ -509,6 +577,14 @@ class SensitivityRun:
         self.test_portfolios['Deep-CNN'][key] = self.deep_cnn.test().get_daily_portfolio_value()
         self.test_portfolios['CNN-GRU'][key] = self.cnn_gru.test().get_daily_portfolio_value()
         self.test_portfolios['CNN-ATTN'][key] = self.cnn_attn.test().get_daily_portfolio_value()
+
+    def average_return(self):
+        self.avg_returns = {}
+        for model_name in self.test_portfolios.keys():
+            ax = None
+            for gamma in self.test_portfolios[model_name]:
+                self.avg_returns[model_name] = (self.test_portfolios[model_name][gamma][-1] - self.test_portfolios[model_name][gamma][0]) * 100 / self.test_portfolios[model_name][gamma][0]
+        return self.avg_returns
 
     def plot_and_save_sensitivity(self):
         plot_path = os.path.join(self.experiment_path, 'plots')
@@ -537,7 +613,7 @@ class SensitivityRun:
                     first = False
 
             ax.set(xlabel='Time', ylabel='%Rate of Return')
-            ax.set_title(f'Analyzing the sensitivity of {model_name} to {self.evaluation_parameter}')
+            ax.set_title(f'Tuning Hyperparameters of {model_name} using {self.evaluation_parameter}')
             plt.legend()
             fig_file = os.path.join(plot_path, f'{model_name}.jpg')
             plt.savefig(fig_file, dpi=300)
@@ -550,95 +626,48 @@ class SensitivityRun:
         self.plot_and_save_sensitivity()
         self.save_portfolios()
 
+def objective_func(params, run):
+    run.gamma = params[0]
+    run.batch_size_list = 2 ** params[1].to(torch.int32)
+    run.replay_memory_size_list = 2 ** params[2].to(torch.int32)
+    run.reset()
+    run.train()
+    run.evaluate_sensitivity()
+    eval = torch.max(torch.tensor(list(run.average_return().values()), dtype=torch.float64))
+    return eval
 
-if __name__ == '__main__':
-    gamma_list = [0.9, 0.8, 0.7]
-    batch_size_list = [16, 64, 256]
-    replay_memory_size_list = [16, 64, 256]
-    n_step = 8
-    window_size = args.window_size
-    dataset_name = args.dataset_name
-    n_episodes = args.nep
-    device = torch.device("cuda" if args.cuda and torch.cuda.is_available() else "cpu")
-    feature_size = 64
-    target_update = 5
+iter = 5
+bounds = torch.tensor([[0.0, 3.0, 3.0], [1.0, 9.0, 9.0]])  # gamma_list, log2(batch_size_list), log2(replay_memory_size_list)
+types = [torch.float64, torch.int64, torch.int64]
 
-    gamma_default = 0.9
-    batch_size_default = 16
-    replay_memory_size_default = 32
+n_step = 8
+window_size = 3
+dataset_name = "BTC-USD"
+n_episodes = 30
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print('Running on:', device)
+feature_size = 64
+target_update = 5
 
-    pbar = tqdm(len(gamma_list) + len(replay_memory_size_list) + len(batch_size_list))
+gamma_default = 0.9
+batch_size_default = 16
+replay_memory_size_default = 32
 
-    # test gamma
+run = SensitivityRun(
+    dataset_name,
+    gamma_default,
+    batch_size_default,
+    replay_memory_size_default,
+    feature_size,
+    target_update,
+    n_episodes,
+    n_step,
+    window_size,
+    device,
+    evaluation_parameter='Simple BO',
+    transaction_cost=0)
 
-    run = SensitivityRun(
-        dataset_name,
-        gamma_default,
-        batch_size_default,
-        replay_memory_size_default,
-        feature_size,
-        target_update,
-        n_episodes,
-        n_step,
-        window_size,
-        device,
-        evaluation_parameter='gamma',
-        transaction_cost=0)
+optimizer = BayesianOptimizer(lambda x: objective_func(x, run), bounds, types)
+optimizer.simple_BO(n_steps=iter, n_init_points=5)
 
-    for gamma in gamma_list:
-        run.gamma = gamma
-        run.reset()
-        run.train()
-        run.evaluate_sensitivity()
-        pbar.update(1)
-
-    run.save_experiment()
-
-    # test batch-size
-    run = SensitivityRun(
-        dataset_name,
-        gamma_default,
-        batch_size_default,
-        replay_memory_size_default,
-        feature_size,
-        target_update,
-        n_episodes,
-        n_step,
-        window_size,
-        device,
-        evaluation_parameter='batch size',
-        transaction_cost=0)
-
-    for batch_size in batch_size_list:
-        run.batch_size = batch_size
-        run.reset()
-        run.train()
-        run.evaluate_sensitivity()
-        pbar.update(1)
-
-    run.save_experiment()
-
-    # test replay memory size
-    run = SensitivityRun(
-        dataset_name,
-        gamma_default,
-        batch_size_default,
-        replay_memory_size_default,
-        feature_size,
-        target_update,
-        n_episodes,
-        n_step,
-        window_size,
-        device,
-        evaluation_parameter='replay memory size',
-        transaction_cost=0)
-
-    for replay_memory_size in replay_memory_size_list:
-        run.replay_memory_size = replay_memory_size
-        run.reset()
-        run.train()
-        run.evaluate_sensitivity()
-        pbar.update(1)
-
-    run.save_experiment()
-    pbar.close()
+run.save_experiment()
