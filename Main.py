@@ -602,19 +602,19 @@ class SensitivityRun:
         self.test_portfolios['DQN-pattern'][key] = self.dqn_pattern.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
         self.test_portfolios['DQN-vanilla'][key] = self.dqn_vanilla.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
         self.test_portfolios['DQN-candlerep'][
-            key] = self.dqn_candle_rep.test(initial_investment=self.train_data_last_price).get_daily_portfolio_value()
-        self.test_portfolios['DQN-windowed'][key] = self.dqn_windowed.test(initial_investment=self.train_data_last_price).get_daily_portfolio_value()
-        self.test_portfolios['MLP-pattern'][key] = self.mlp_pattern.test(initial_investment=self.train_data_last_price).get_daily_portfolio_value()
-        self.test_portfolios['MLP-vanilla'][key] = self.mlp_vanilla.test(initial_investment=self.train_data_last_price).get_daily_portfolio_value()
+            key] = self.dqn_candle_rep.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['DQN-windowed'][key] = self.dqn_windowed.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['MLP-pattern'][key] = self.mlp_pattern.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['MLP-vanilla'][key] = self.mlp_vanilla.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
         self.test_portfolios['MLP-candlerep'][
-            key] = self.mlp_candle_rep.test(initial_investment=self.train_data_last_price).get_daily_portfolio_value()
-        self.test_portfolios['MLP-windowed'][key] = self.mlp_windowed.test(initial_investment=self.train_data_last_price).get_daily_portfolio_value()
-        self.test_portfolios['CNN1d'][key] = self.cnn1d.test(initial_investment=self.train_data_last_price).get_daily_portfolio_value()
-        self.test_portfolios['CNN2d'][key] = self.cnn2d.test(initial_investment=self.train_data_last_price).get_daily_portfolio_value()
-        self.test_portfolios['GRU'][key] = self.gru.test(initial_investment=self.train_data_last_price).get_daily_portfolio_value()
-        self.test_portfolios['Deep-CNN'][key] = self.deep_cnn.test(initial_investment=self.train_data_last_price).get_daily_portfolio_value()
-        self.test_portfolios['CNN-GRU'][key] = self.cnn_gru.test(initial_investment=self.train_data_last_price).get_daily_portfolio_value()
-        self.test_portfolios['CNN-ATTN'][key] = self.cnn_attn.test(initial_investment=self.train_data_last_price).get_daily_portfolio_value()
+            key] = self.mlp_candle_rep.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['MLP-windowed'][key] = self.mlp_windowed.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['CNN1d'][key] = self.cnn1d.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['CNN2d'][key] = self.cnn2d.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['GRU'][key] = self.gru.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['Deep-CNN'][key] = self.deep_cnn.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['CNN-GRU'][key] = self.cnn_gru.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['CNN-ATTN'][key] = self.cnn_attn.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
 
         self.train_portfolios['DQN-pattern'][key] = self.dqn_pattern.test(test_type='train').get_daily_portfolio_value()
         self.train_portfolios['DQN-vanilla'][key] = self.dqn_vanilla.test(test_type='train').get_daily_portfolio_value()
@@ -755,8 +755,8 @@ class SensitivityRun:
         self.plot_and_save_return()
         self.save_portfolios()
 
-iter = 1
-init_set = 2
+iter = 50
+init_set = 15
 optimizer_name = 'Simple BO'
 
 # gamma, log2(batch_size), log2(replay_memory_size), log2(n_step), n_episodes / 10
