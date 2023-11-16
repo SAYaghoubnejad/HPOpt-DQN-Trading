@@ -27,6 +27,7 @@ class BaseTrain:
                  data_loader,
                  data_train,
                  data_test,
+                 data_validation,
                  dataset_name,
                  model_kind,
                  state_mode=1,
@@ -55,6 +56,8 @@ class BaseTrain:
         """
         self.data_train = data_train
         self.data_test = data_test
+        self.data_validation = data_validation
+
         self.DATASET_NAME = dataset_name
         self.BATCH_SIZE = BATCH_SIZE
         self.GAMMA = GAMMA
@@ -211,7 +214,13 @@ class BaseTrain:
         :@param test_type: test results on train data or test data
         :@return returns an Evaluation object to have access to different evaluation metrics.
         """
-        data = self.data_train if test_type == 'train' else self.data_test
+        data = None
+        if test_type == 'train':
+            data = self.data_train 
+        elif test_type == 'validation':
+            data = self.data_validation
+        else:
+            data = self.data_test
 
         self.test_net.load_state_dict(torch.load(self.model_dir))
         self.test_net.to(device)
@@ -228,6 +237,5 @@ class BaseTrain:
 
         data.make_investment(action_list)
         ev_agent = Evaluation(data.data, data.action_name, initial_investment, self.transaction_cost)
-        # print(test_type)
         # ev_agent.evaluate()
         return ev_agent

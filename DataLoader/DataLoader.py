@@ -15,7 +15,7 @@ from pathlib import Path
 class YahooFinanceDataLoader:
     """ Dataset form GOOGLE"""
 
-    def __init__(self, dataset_name, split_point, begin_date=None, end_date=None, load_from_file=False):
+    def __init__(self, dataset_name, split_point, validation_split_point, begin_date=None, end_date=None, load_from_file=False):
         """
         :param dataset_name
             folder name in './Data' directory
@@ -35,6 +35,8 @@ class YahooFinanceDataLoader:
             processes
         :param split_point
             The point (date) between begin_date and end_date that you want to split the train and test sets.
+        :param validation_split_point
+            The point (date) between split_point and end_date that you want to split the test and validation sets.
         """
         warnings.filterwarnings('ignore')
         self.DATA_NAME = dataset_name
@@ -62,18 +64,28 @@ class YahooFinanceDataLoader:
 
             if type(split_point) == str:
                 self.data_train = self.data[self.data.index < split_point]
-                self.data_test = self.data[self.data.index >= split_point]
+                if validation_split_point is None:
+                    self.data_test = self.data[self.data.index >= split_point]
+                else:
+                    self.data_test = self.data[(self.data.index >= split_point) & (self.data.index < validation_split_point)]
+                    self.data_validation = self.data[self.data.index >= validation_split_point]
             elif type(split_point) == int:
                 self.data_train = self.data[:split_point]
-                self.data_test = self.data[split_point:]
+                if validation_split_point is None:
+                    self.data_test = self.data[split_point:]
+                else:
+                    self.data_test = self.data[split_point:validation_split_point]
+                    self.data_validation = self.data[validation_split_point:]
             else:
                 raise ValueError('Split point should be either int or date!')
 
             self.data_train_with_date = self.data_train.copy()
             self.data_test_with_date = self.data_test.copy()
+            self.data_validation_with_date = self.data_validation.copy()
 
             self.data_train.reset_index(drop=True, inplace=True)
             self.data_test.reset_index(drop=True, inplace=True)
+            self.data_validation.reset_index(drop=True, inplace=True)
             # self.data.reset_index(drop=True, inplace=True)
         else:
             self.data = pd.read_csv(f'{self.DATA_PATH}data_processed.csv')
@@ -92,18 +104,28 @@ class YahooFinanceDataLoader:
 
             if type(split_point) == str:
                 self.data_train = self.data[self.data.index < split_point]
-                self.data_test = self.data[self.data.index >= split_point]
+                if validation_split_point is None:
+                    self.data_test = self.data[self.data.index >= split_point]
+                else:
+                    self.data_test = self.data[(self.data.index >= split_point) & (self.data.index < validation_split_point)]
+                    self.data_validation = self.data[self.data.index >= validation_split_point]
             elif type(split_point) == int:
                 self.data_train = self.data[:split_point]
-                self.data_test = self.data[split_point:]
+                if validation_split_point is None:
+                    self.data_test = self.data[split_point:]
+                else:
+                    self.data_test = self.data[split_point:validation_split_point]
+                    self.data_validation = self.data[validation_split_point:]
             else:
                 raise ValueError('Split point should be either int or date!')
 
             self.data_train_with_date = self.data_train.copy()
             self.data_test_with_date = self.data_test.copy()
+            self.data_validation_with_date = self.data_validation.copy()
 
             self.data_train.reset_index(drop=True, inplace=True)
             self.data_test.reset_index(drop=True, inplace=True)
+            self.data_validation.reset_index(drop=True, inplace=True)
             # self.data.reset_index(drop=True, inplace=True)
 
     def load_data(self):
