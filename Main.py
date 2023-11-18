@@ -142,7 +142,8 @@ class SensitivityRun:
 
         self.STATE_MODE_OHLC = 1
         self.STATE_MODE_CANDLE_REP = 4  # %body + %upper-shadow + %lower-shadow
-        self.STATE_MODE_WINDOWED = 5  # window with k candles inside + the trend of those candles
+        # window with k candles inside + the trend of those candles
+        self.STATE_MODE_WINDOWED = 5
 
         self.dataTrain_autoPatternExtractionAgent = None
         self.dataTest_autoPatternExtractionAgent = None
@@ -173,7 +174,8 @@ class SensitivityRun:
         self.deep_cnn = None
         self.cnn_gru = None
         self.cnn_attn = None
-        self.experiment_path = os.path.join(os.getcwd(), 'Results/' + self.evaluation_parameter + '/')
+        self.experiment_path = os.path.join(
+            os.getcwd(), 'Results/' + self.evaluation_parameter + '/')
         if not os.path.exists(self.experiment_path):
             os.makedirs(self.experiment_path)
 
@@ -194,34 +196,34 @@ class SensitivityRun:
                                 'CNN-ATTN': {}}
 
         self.train_portfolios = {'DQN-pattern': {},
-                                'DQN-vanilla': {},
-                                'DQN-candlerep': {},
-                                'DQN-windowed': {},
-                                'MLP-pattern': {},
-                                'MLP-vanilla': {},
-                                'MLP-candlerep': {},
-                                'MLP-windowed': {},
-                                'CNN1d': {},
-                                'CNN2d': {},
-                                'GRU': {},
-                                'Deep-CNN': {},
-                                'CNN-GRU': {},
-                                'CNN-ATTN': {}}
-        
+                                 'DQN-vanilla': {},
+                                 'DQN-candlerep': {},
+                                 'DQN-windowed': {},
+                                 'MLP-pattern': {},
+                                 'MLP-vanilla': {},
+                                 'MLP-candlerep': {},
+                                 'MLP-windowed': {},
+                                 'CNN1d': {},
+                                 'CNN2d': {},
+                                 'GRU': {},
+                                 'Deep-CNN': {},
+                                 'CNN-GRU': {},
+                                 'CNN-ATTN': {}}
+
         self.validation_portfolios = {'DQN-pattern': {},
-                                'DQN-vanilla': {},
-                                'DQN-candlerep': {},
-                                'DQN-windowed': {},
-                                'MLP-pattern': {},
-                                'MLP-vanilla': {},
-                                'MLP-candlerep': {},
-                                'MLP-windowed': {},
-                                'CNN1d': {},
-                                'CNN2d': {},
-                                'GRU': {},
-                                'Deep-CNN': {},
-                                'CNN-GRU': {},
-                                'CNN-ATTN': {}}
+                                      'DQN-vanilla': {},
+                                      'DQN-candlerep': {},
+                                      'DQN-windowed': {},
+                                      'MLP-pattern': {},
+                                      'MLP-vanilla': {},
+                                      'MLP-candlerep': {},
+                                      'MLP-windowed': {},
+                                      'CNN1d': {},
+                                      'CNN2d': {},
+                                      'GRU': {},
+                                      'Deep-CNN': {},
+                                      'CNN-GRU': {},
+                                      'CNN-ATTN': {}}
 
     def reset(self):
         self.load_data()
@@ -229,63 +231,71 @@ class SensitivityRun:
 
     def load_data(self):
         self.dataTrain_autoPatternExtractionAgent = \
-            DataAutoPatternExtractionAgent(self.data_loader.data_train,
-                                           self.STATE_MODE_OHLC,
-                                           'action_auto_pattern_extraction',
-                                           self.device,
-                                           self.gamma,
-                                           self.n_step,
-                                           self.batch_size,
-                                           self.window_size,
-                                           self.transaction_cost)
+            DataAutoPatternExtractionAgent(
+                self.data_loader.data_train,
+                self.STATE_MODE_OHLC,
+                'action_auto_pattern_extraction',
+                self.device,
+                self.gamma,
+                self.n_step,
+                self.batch_size,
+                self.window_size,
+                self.transaction_cost)
 
         self.dataTest_autoPatternExtractionAgent = \
-            DataAutoPatternExtractionAgent(self.data_loader.data_test,
-                                           self.STATE_MODE_OHLC,
-                                           'action_auto_pattern_extraction',
-                                           self.device,
-                                           self.gamma,
-                                           self.n_step,
-                                           self.batch_size,
-                                           self.window_size,
-                                           self.transaction_cost)
+            DataAutoPatternExtractionAgent(
+                self.data_loader.data_test,
+                self.STATE_MODE_OHLC,
+                'action_auto_pattern_extraction',
+                self.device,
+                self.gamma,
+                self.n_step,
+                self.batch_size,
+                self.window_size,
+                self.transaction_cost)
+        
         self.dataValidation_autoPatternExtractionAgent = \
-            DataAutoPatternExtractionAgent(self.data_loader.data_validation,
-                                           self.STATE_MODE_OHLC,
-                                           'action_auto_pattern_extraction',
-                                           self.device,
-                                           self.gamma,
-                                           self.n_step,
-                                           self.batch_size,
-                                           self.window_size,
-                                           self.transaction_cost)
+            DataAutoPatternExtractionAgent(
+                self.data_loader.data_validation,
+                self.STATE_MODE_OHLC,
+                'action_auto_pattern_extraction',
+                self.device,
+                self.gamma,
+                self.n_step,
+                self.batch_size,
+                self.window_size,
+                self.transaction_cost)
+        
         self.dataTrain_patternBased = \
-            DataForPatternBasedAgent(self.data_loader.data_train,
-                                     self.data_loader.patterns,
-                                     'action_pattern',
-                                     self.device, self.gamma,
-                                     self.n_step, self.batch_size,
-                                     self.transaction_cost)
+            DataForPatternBasedAgent(
+                self.data_loader.data_train,
+                self.data_loader.patterns,
+                'action_pattern',
+                self.device, self.gamma,
+                self.n_step, self.batch_size,
+                self.transaction_cost)
 
         self.dataTest_patternBased = \
-            DataForPatternBasedAgent(self.data_loader.data_test,
-                                     self.data_loader.patterns,
-                                     'action_pattern',
-                                     self.device,
-                                     self.gamma,
-                                     self.n_step,
-                                     self.batch_size,
-                                     self.transaction_cost)
-        
+            DataForPatternBasedAgent(
+                self.data_loader.data_test,
+                self.data_loader.patterns,
+                'action_pattern',
+                self.device,
+                self.gamma,
+                self.n_step,
+                self.batch_size,
+                self.transaction_cost)
+
         self.dataValidation_patternBased = \
-            DataForPatternBasedAgent(self.data_loader.data_validation,
-                                     self.data_loader.patterns,
-                                     'action_pattern',
-                                     self.device,
-                                     self.gamma,
-                                     self.n_step,
-                                     self.batch_size,
-                                     self.transaction_cost)
+            DataForPatternBasedAgent(
+                self.data_loader.data_validation,
+                self.data_loader.patterns,
+                'action_pattern',
+                self.device,
+                self.gamma,
+                self.n_step,
+                self.batch_size,
+                self.transaction_cost)
 
         self.dataTrain_autoPatternExtractionAgent_candle_rep = \
             DataAutoPatternExtractionAgent(
@@ -296,281 +306,306 @@ class SensitivityRun:
                 self.gamma, self.n_step, self.batch_size,
                 self.window_size,
                 self.transaction_cost)
+        
         self.dataTest_autoPatternExtractionAgent_candle_rep = \
-            DataAutoPatternExtractionAgent(self.data_loader.data_test,
-                                           self.STATE_MODE_CANDLE_REP,
-                                           'action_candle_rep',
-                                           self.device,
-                                           self.gamma, self.n_step,
-                                           self.batch_size,
-                                           self.window_size,
-                                           self.transaction_cost)
-        self.datavalidation_autoPatternExtractionAgent_candle_rep = \
-            DataAutoPatternExtractionAgent(self.data_loader.data_validation,
-                                           self.STATE_MODE_CANDLE_REP,
-                                           'action_candle_rep',
-                                           self.device,
-                                           self.gamma, self.n_step,
-                                           self.batch_size,
-                                           self.window_size,
-                                           self.transaction_cost)
+            DataAutoPatternExtractionAgent(
+                self.data_loader.data_test,
+                self.STATE_MODE_CANDLE_REP,
+                'action_candle_rep',
+                self.device,
+                self.gamma, self.n_step,
+                self.batch_size,
+                self.window_size,
+                self.transaction_cost)
+        
+        self.dataValidation_autoPatternExtractionAgent_candle_rep = \
+            DataAutoPatternExtractionAgent(
+                self.data_loader.data_validation,
+                self.STATE_MODE_CANDLE_REP,
+                'action_candle_rep',
+                self.device,
+                self.gamma, self.n_step,
+                self.batch_size,
+                self.window_size,
+                self.transaction_cost)
 
         self.dataTrain_autoPatternExtractionAgent_windowed = \
-            DataAutoPatternExtractionAgent(self.data_loader.data_train,
-                                           self.STATE_MODE_WINDOWED,
-                                           'action_auto_extraction_windowed',
-                                           self.device,
-                                           self.gamma, self.n_step,
-                                           self.batch_size,
-                                           self.window_size,
-                                           self.transaction_cost)
+            DataAutoPatternExtractionAgent(
+                self.data_loader.data_train,
+                self.STATE_MODE_WINDOWED,
+                'action_auto_extraction_windowed',
+                self.device,
+                self.gamma, self.n_step,
+                self.batch_size,
+                self.window_size,
+                self.transaction_cost)
+        
         self.dataTest_autoPatternExtractionAgent_windowed = \
-            DataAutoPatternExtractionAgent(self.data_loader.data_test,
-                                           self.STATE_MODE_WINDOWED,
-                                           'action_auto_extraction_windowed',
-                                           self.device,
-                                           self.gamma, self.n_step,
-                                           self.batch_size,
-                                           self.window_size,
-                                           self.transaction_cost)
-        
+            DataAutoPatternExtractionAgent(
+                self.data_loader.data_test,
+                self.STATE_MODE_WINDOWED,
+                'action_auto_extraction_windowed',
+                self.device,
+                self.gamma, self.n_step,
+                self.batch_size,
+                self.window_size,
+                self.transaction_cost)
+
         self.dataValidation_autoPatternExtractionAgent_windowed = \
-            DataAutoPatternExtractionAgent(self.data_loader.data_validation,
-                                           self.STATE_MODE_WINDOWED,
-                                           'action_auto_extraction_windowed',
-                                           self.device,
-                                           self.gamma, self.n_step,
-                                           self.batch_size,
-                                           self.window_size,
-                                           self.transaction_cost)
+            DataAutoPatternExtractionAgent(
+                self.data_loader.data_validation,
+                self.STATE_MODE_WINDOWED,
+                'action_auto_extraction_windowed',
+                self.device,
+                self.gamma, self.n_step,
+                self.batch_size,
+                self.window_size,
+                self.transaction_cost)
 
-        self.dataTrain_sequential = DataSequential(self.data_loader.data_train,
-                                                   'action_sequential',
-                                                   self.device,
-                                                   self.gamma,
-                                                   self.n_step,
-                                                   self.batch_size,
-                                                   self.window_size,
-                                                   self.transaction_cost)
+        self.dataTrain_sequential = DataSequential(
+            self.data_loader.data_train,
+            'action_sequential',
+            self.device,
+            self.gamma,
+            self.n_step,
+            self.batch_size,
+            self.window_size,
+            self.transaction_cost)
 
-        self.dataTest_sequential = DataSequential(self.data_loader.data_test,
-                                                  'action_sequential',
-                                                  self.device,
-                                                  self.gamma,
-                                                  self.n_step,
-                                                  self.batch_size,
-                                                  self.window_size,
-                                                  self.transaction_cost)
-        
-        self.dataValidation_sequential = DataSequential(self.data_loader.data_validation,
-                                                  'action_sequential',
-                                                  self.device,
-                                                  self.gamma,
-                                                  self.n_step,
-                                                  self.batch_size,
-                                                  self.window_size,
-                                                  self.transaction_cost)
+        self.dataTest_sequential = DataSequential(
+            self.data_loader.data_test,
+            'action_sequential',
+            self.device,
+            self.gamma,
+            self.n_step,
+            self.batch_size,
+            self.window_size,
+            self.transaction_cost)
+
+        self.dataValidation_sequential = DataSequential(
+            self.data_loader.data_validation,
+            'action_sequential',
+            self.device,
+            self.gamma,
+            self.n_step,
+            self.batch_size,
+            self.window_size,
+            self.transaction_cost)
 
     def load_agents(self):
-        self.dqn_pattern = DeepRL(self.data_loader,
-                                  self.dataTrain_patternBased,
-                                  self.dataTest_patternBased,
-                                  self.dataValidation_patternBased,
-                                  self.dataset_name,
-                                  None,
-                                  self.window_size,
-                                  self.transaction_cost,
-                                  BATCH_SIZE=self.batch_size,
-                                  GAMMA=self.gamma,
-                                  ReplayMemorySize=self.replay_memory_size,
-                                  TARGET_UPDATE=self.target_update,
-                                  n_step=self.n_step)
+        self.dqn_pattern = DeepRL(
+            self.data_loader,
+            self.dataTrain_patternBased,
+            self.dataTest_patternBased,
+            self.dataValidation_patternBased,
+            self.dataset_name,
+            None,
+            self.window_size,
+            self.transaction_cost,
+            BATCH_SIZE=self.batch_size,
+            GAMMA=self.gamma,
+            ReplayMemorySize=self.replay_memory_size,
+            TARGET_UPDATE=self.target_update,
+            n_step=self.n_step)
 
-        self.dqn_vanilla = DeepRL(self.data_loader,
-                                  self.dataTrain_autoPatternExtractionAgent,
-                                  self.dataTest_autoPatternExtractionAgent,
-                                  self.dataValidation_autoPatternExtractionAgent,
-                                  self.dataset_name,
-                                  self.STATE_MODE_OHLC,
-                                  self.window_size,
-                                  self.transaction_cost,
-                                  BATCH_SIZE=self.batch_size,
-                                  GAMMA=self.gamma,
-                                  ReplayMemorySize=self.replay_memory_size,
-                                  TARGET_UPDATE=self.target_update,
-                                  n_step=self.n_step)
+        self.dqn_vanilla = DeepRL(
+            self.data_loader,
+            self.dataTrain_autoPatternExtractionAgent,
+            self.dataTest_autoPatternExtractionAgent,
+            self.dataValidation_autoPatternExtractionAgent,
+            self.dataset_name,
+            self.STATE_MODE_OHLC,
+            self.window_size,
+            self.transaction_cost,
+            BATCH_SIZE=self.batch_size,
+            GAMMA=self.gamma,
+            ReplayMemorySize=self.replay_memory_size,
+            TARGET_UPDATE=self.target_update,
+            n_step=self.n_step)
 
-        self.dqn_candle_rep = DeepRL(self.data_loader,
-                                     self.dataTrain_autoPatternExtractionAgent_candle_rep,
-                                     self.dataTest_autoPatternExtractionAgent_candle_rep,
-                                     self.dataValidation_autoPatternExtractionAgent_candle_rep,
-                                     self.dataset_name,
-                                     self.STATE_MODE_CANDLE_REP,
-                                     self.window_size,
-                                     self.transaction_cost,
-                                     BATCH_SIZE=self.batch_size,
-                                     GAMMA=self.gamma,
-                                     ReplayMemorySize=self.replay_memory_size,
-                                     TARGET_UPDATE=self.target_update,
-                                     n_step=self.n_step)
+        self.dqn_candle_rep = DeepRL(
+            self.data_loader,
+            self.dataTrain_autoPatternExtractionAgent_candle_rep,
+            self.dataTest_autoPatternExtractionAgent_candle_rep,
+            self.dataValidation_autoPatternExtractionAgent_candle_rep,
+            self.dataset_name,
+            self.STATE_MODE_CANDLE_REP,
+            self.window_size,
+            self.transaction_cost,
+            BATCH_SIZE=self.batch_size,
+            GAMMA=self.gamma,
+            ReplayMemorySize=self.replay_memory_size,
+            TARGET_UPDATE=self.target_update,
+            n_step=self.n_step)
 
-        self.dqn_windowed = DeepRL(self.data_loader,
-                                   self.dataTrain_autoPatternExtractionAgent_windowed,
-                                   self.dataTest_autoPatternExtractionAgent_windowed,
-                                   self.dataValidation_autoPatternExtractionAgent_windowed,
-                                   self.dataset_name,
-                                   self.STATE_MODE_WINDOWED,
-                                   self.window_size,
-                                   self.transaction_cost,
-                                   BATCH_SIZE=self.batch_size,
-                                   GAMMA=self.gamma,
-                                   ReplayMemorySize=self.replay_memory_size,
-                                   TARGET_UPDATE=self.target_update,
-                                   n_step=self.n_step)
+        self.dqn_windowed = DeepRL(
+            self.data_loader,
+            self.dataTrain_autoPatternExtractionAgent_windowed,
+            self.dataTest_autoPatternExtractionAgent_windowed,
+            self.dataValidation_autoPatternExtractionAgent_windowed,
+            self.dataset_name,
+            self.STATE_MODE_WINDOWED,
+            self.window_size,
+            self.transaction_cost,
+            BATCH_SIZE=self.batch_size,
+            GAMMA=self.gamma,
+            ReplayMemorySize=self.replay_memory_size,
+            TARGET_UPDATE=self.target_update,
+            n_step=self.n_step)
 
-        self.mlp_pattern = SimpleMLP(self.data_loader,
-                                     self.dataTrain_patternBased,
-                                     self.dataTest_patternBased,
-                                     self.dataValidation_patternBased,
-                                     self.dataset_name,
-                                     None,
-                                     self.window_size,
-                                     self.transaction_cost,
-                                     self.feature_size,
-                                     BATCH_SIZE=self.batch_size,
-                                     GAMMA=self.gamma,
-                                     ReplayMemorySize=self.replay_memory_size,
-                                     TARGET_UPDATE=self.target_update,
-                                     n_step=self.n_step)
+        self.mlp_pattern = SimpleMLP(
+            self.data_loader,
+            self.dataTrain_patternBased,
+            self.dataTest_patternBased,
+            self.dataValidation_patternBased,
+            self.dataset_name,
+            None,
+            self.window_size,
+            self.transaction_cost,
+            self.feature_size,
+            BATCH_SIZE=self.batch_size,
+            GAMMA=self.gamma,
+            ReplayMemorySize=self.replay_memory_size,
+            TARGET_UPDATE=self.target_update,
+            n_step=self.n_step)
 
-        self.mlp_vanilla = SimpleMLP(self.data_loader,
-                                     self.dataTrain_autoPatternExtractionAgent,
-                                     self.dataTest_autoPatternExtractionAgent,
-                                     self.dataValidation_autoPatternExtractionAgent,
-                                     self.dataset_name,
-                                     self.STATE_MODE_OHLC,
-                                     self.window_size,
-                                     self.transaction_cost,
-                                     self.feature_size,
-                                     BATCH_SIZE=self.batch_size,
-                                     GAMMA=self.gamma,
-                                     ReplayMemorySize=self.replay_memory_size,
-                                     TARGET_UPDATE=self.target_update,
-                                     n_step=self.n_step)
+        self.mlp_vanilla = SimpleMLP(
+            self.data_loader,
+            self.dataTrain_autoPatternExtractionAgent,
+            self.dataTest_autoPatternExtractionAgent,
+            self.dataValidation_autoPatternExtractionAgent,
+            self.dataset_name,
+            self.STATE_MODE_OHLC,
+            self.window_size,
+            self.transaction_cost,
+            self.feature_size,
+            BATCH_SIZE=self.batch_size,
+            GAMMA=self.gamma,
+            ReplayMemorySize=self.replay_memory_size,
+            TARGET_UPDATE=self.target_update,
+            n_step=self.n_step)
 
-        self.mlp_candle_rep = SimpleMLP(self.data_loader,
-                                        self.dataTrain_autoPatternExtractionAgent_candle_rep,
-                                        self.dataTest_autoPatternExtractionAgent_candle_rep,
-                                        self.dataValidation_autoPatternExtractionAgent_candle_rep,
-                                        self.dataset_name,
-                                        self.STATE_MODE_CANDLE_REP,
-                                        self.window_size,
-                                        self.transaction_cost,
-                                        self.feature_size,
-                                        BATCH_SIZE=self.batch_size,
-                                        GAMMA=self.gamma,
-                                        ReplayMemorySize=self.replay_memory_size,
-                                        TARGET_UPDATE=self.target_update,
-                                        n_step=self.n_step)
+        self.mlp_candle_rep = SimpleMLP(
+            self.data_loader,
+            self.dataTrain_autoPatternExtractionAgent_candle_rep,
+            self.dataTest_autoPatternExtractionAgent_candle_rep,
+            self.dataValidation_autoPatternExtractionAgent_candle_rep,
+            self.dataset_name,
+            self.STATE_MODE_CANDLE_REP,
+            self.window_size,
+            self.transaction_cost,
+            self.feature_size,
+            BATCH_SIZE=self.batch_size,
+            GAMMA=self.gamma,
+            ReplayMemorySize=self.replay_memory_size,
+            TARGET_UPDATE=self.target_update,
+            n_step=self.n_step)
 
-        self.mlp_windowed = SimpleMLP(self.data_loader,
-                                      self.dataTrain_autoPatternExtractionAgent_windowed,
-                                      self.dataTest_autoPatternExtractionAgent_windowed,
-                                      self.dataValidation_autoPatternExtractionAgent_windowed,
-                                      self.dataset_name,
-                                      self.STATE_MODE_WINDOWED,
-                                      self.window_size,
-                                      self.transaction_cost,
-                                      self.feature_size,
-                                      BATCH_SIZE=self.batch_size,
-                                      GAMMA=self.gamma,
-                                      ReplayMemorySize=self.replay_memory_size,
-                                      TARGET_UPDATE=self.target_update,
-                                      n_step=self.n_step)
+        self.mlp_windowed = SimpleMLP(
+            self.data_loader,
+            self.dataTrain_autoPatternExtractionAgent_windowed,
+            self.dataTest_autoPatternExtractionAgent_windowed,
+            self.dataValidation_autoPatternExtractionAgent_windowed,
+            self.dataset_name,
+            self.STATE_MODE_WINDOWED,
+            self.window_size,
+            self.transaction_cost,
+            self.feature_size,
+            BATCH_SIZE=self.batch_size,
+            GAMMA=self.gamma,
+            ReplayMemorySize=self.replay_memory_size,
+            TARGET_UPDATE=self.target_update,
+            n_step=self.n_step)
 
-        self.cnn1d = SimpleCNN(self.data_loader,
-                               self.dataTrain_autoPatternExtractionAgent,
-                               self.dataTest_autoPatternExtractionAgent,
-                               self.dataValidation_autoPatternExtractionAgent,
-                               self.dataset_name,
-                               self.STATE_MODE_OHLC,
-                               self.window_size,
-                               self.transaction_cost,
-                               self.feature_size,
-                               BATCH_SIZE=self.batch_size,
-                               GAMMA=self.gamma,
-                               ReplayMemorySize=self.replay_memory_size,
-                               TARGET_UPDATE=self.target_update,
-                               n_step=self.n_step)
+        self.cnn1d = SimpleCNN(
+            self.data_loader,
+            self.dataTrain_autoPatternExtractionAgent,
+            self.dataTest_autoPatternExtractionAgent,
+            self.dataValidation_autoPatternExtractionAgent,
+            self.dataset_name,
+            self.STATE_MODE_OHLC,
+            self.window_size,
+            self.transaction_cost,
+            self.feature_size,
+            BATCH_SIZE=self.batch_size,
+            GAMMA=self.gamma,
+            ReplayMemorySize=self.replay_memory_size,
+            TARGET_UPDATE=self.target_update,
+            n_step=self.n_step)
 
-        self.cnn2d = CNN2d(self.data_loader,
-                           self.dataTrain_sequential,
-                           self.dataTest_sequential,
-                           self.dataValidation_sequential,
-                           self.dataset_name,
-                           self.feature_size,
-                           self.transaction_cost,
-                           BATCH_SIZE=self.batch_size,
-                           GAMMA=self.gamma,
-                           ReplayMemorySize=self.replay_memory_size,
-                           TARGET_UPDATE=self.target_update,
-                           n_step=self.n_step,
-                           window_size=self.window_size)
+        self.cnn2d = CNN2d(
+            self.data_loader,
+            self.dataTrain_sequential,
+            self.dataTest_sequential,
+            self.dataValidation_sequential,
+            self.dataset_name,
+            self.feature_size,
+            self.transaction_cost,
+            BATCH_SIZE=self.batch_size,
+            GAMMA=self.gamma,
+            ReplayMemorySize=self.replay_memory_size,
+            TARGET_UPDATE=self.target_update,
+            n_step=self.n_step,
+            window_size=self.window_size)
 
-        self.gru = GRU(self.data_loader,
-                       self.dataTrain_sequential,
-                       self.dataTest_sequential,
-                       self.dataValidation_sequential,
-                       self.dataset_name,
-                       self.transaction_cost,
-                       self.feature_size,
-                       BATCH_SIZE=self.batch_size,
-                       GAMMA=self.gamma,
-                       ReplayMemorySize=self.replay_memory_size,
-                       TARGET_UPDATE=self.target_update,
-                       n_step=self.n_step,
-                       window_size=self.window_size)
+        self.gru = GRU(
+            self.data_loader,
+            self.dataTrain_sequential,
+            self.dataTest_sequential,
+            self.dataValidation_sequential,
+            self.dataset_name,
+            self.transaction_cost,
+            self.feature_size,
+            BATCH_SIZE=self.batch_size,
+            GAMMA=self.gamma,
+            ReplayMemorySize=self.replay_memory_size,
+            TARGET_UPDATE=self.target_update,
+            n_step=self.n_step,
+            window_size=self.window_size)
 
-        self.deep_cnn = CNN(self.data_loader,
-                            self.dataTrain_sequential,
-                            self.dataTest_sequential,
-                            self.dataValidation_sequential,
-                            self.dataset_name,
-                            self.transaction_cost,
-                            BATCH_SIZE=self.batch_size,
-                            GAMMA=self.gamma,
-                            ReplayMemorySize=self.replay_memory_size,
-                            TARGET_UPDATE=self.target_update,
-                            n_step=self.n_step,
-                            window_size=self.window_size)
+        self.deep_cnn = CNN(
+            self.data_loader,
+            self.dataTrain_sequential,
+            self.dataTest_sequential,
+            self.dataValidation_sequential,
+            self.dataset_name,
+            self.transaction_cost,
+            BATCH_SIZE=self.batch_size,
+            GAMMA=self.gamma,
+            ReplayMemorySize=self.replay_memory_size,
+            TARGET_UPDATE=self.target_update,
+            n_step=self.n_step,
+            window_size=self.window_size)
 
-        self.cnn_gru = CNN_GRU(self.data_loader,
-                               self.dataTrain_sequential,
-                               self.dataTest_sequential,
-                               self.dataValidation_sequential,
-                               self.dataset_name,
-                               self.transaction_cost,
-                               self.feature_size,
-                               BATCH_SIZE=self.batch_size,
-                               GAMMA=self.gamma,
-                               ReplayMemorySize=self.replay_memory_size,
-                               TARGET_UPDATE=self.target_update,
-                               n_step=self.n_step,
-                               window_size=self.window_size)
+        self.cnn_gru = CNN_GRU(
+            self.data_loader,
+            self.dataTrain_sequential,
+            self.dataTest_sequential,
+            self.dataValidation_sequential,
+            self.dataset_name,
+            self.transaction_cost,
+            self.feature_size,
+            BATCH_SIZE=self.batch_size,
+            GAMMA=self.gamma,
+            ReplayMemorySize=self.replay_memory_size,
+            TARGET_UPDATE=self.target_update,
+            n_step=self.n_step,
+            window_size=self.window_size)
 
-        self.cnn_attn = CNN_ATTN(self.data_loader,
-                                 self.dataTrain_sequential,
-                                 self.dataTest_sequential,
-                                 self.dataValidation_sequential,
-                                 self.dataset_name,
-                                 self.transaction_cost,
-                                 self.feature_size,
-                                 BATCH_SIZE=self.batch_size,
-                                 GAMMA=self.gamma,
-                                 ReplayMemorySize=self.replay_memory_size,
-                                 TARGET_UPDATE=self.target_update,
-                                 n_step=self.n_step,
-                                 window_size=self.window_size)
+        self.cnn_attn = CNN_ATTN(
+            self.data_loader,
+            self.dataTrain_sequential,
+            self.dataTest_sequential,
+            self.dataValidation_sequential,
+            self.dataset_name,
+            self.transaction_cost,
+            self.feature_size,
+            BATCH_SIZE=self.batch_size,
+            GAMMA=self.gamma,
+            ReplayMemorySize=self.replay_memory_size,
+            TARGET_UPDATE=self.target_update,
+            n_step=self.n_step,
+            window_size=self.window_size)
 
     def train(self):
         self.dqn_pattern.train(self.n_episodes)
@@ -599,75 +634,112 @@ class SensitivityRun:
         else:
             key = f'G: {self.gamma}, BS: {self.batch_size}, RMS: {self.replay_memory_size}, n: {self.n_step}, episodes: {self.n_episodes}'
 
-        self.test_portfolios['DQN-pattern'][key] = self.dqn_pattern.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
-        self.test_portfolios['DQN-vanilla'][key] = self.dqn_vanilla.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['DQN-pattern'][key] = self.dqn_pattern.test(
+            initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['DQN-vanilla'][key] = self.dqn_vanilla.test(
+            initial_investment=self.test_data_first_price).get_daily_portfolio_value()
         self.test_portfolios['DQN-candlerep'][
             key] = self.dqn_candle_rep.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
-        self.test_portfolios['DQN-windowed'][key] = self.dqn_windowed.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
-        self.test_portfolios['MLP-pattern'][key] = self.mlp_pattern.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
-        self.test_portfolios['MLP-vanilla'][key] = self.mlp_vanilla.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['DQN-windowed'][key] = self.dqn_windowed.test(
+            initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['MLP-pattern'][key] = self.mlp_pattern.test(
+            initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['MLP-vanilla'][key] = self.mlp_vanilla.test(
+            initial_investment=self.test_data_first_price).get_daily_portfolio_value()
         self.test_portfolios['MLP-candlerep'][
             key] = self.mlp_candle_rep.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
-        self.test_portfolios['MLP-windowed'][key] = self.mlp_windowed.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
-        self.test_portfolios['CNN1d'][key] = self.cnn1d.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
-        self.test_portfolios['CNN2d'][key] = self.cnn2d.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
-        self.test_portfolios['GRU'][key] = self.gru.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
-        self.test_portfolios['Deep-CNN'][key] = self.deep_cnn.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
-        self.test_portfolios['CNN-GRU'][key] = self.cnn_gru.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
-        self.test_portfolios['CNN-ATTN'][key] = self.cnn_attn.test(initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['MLP-windowed'][key] = self.mlp_windowed.test(
+            initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['CNN1d'][key] = self.cnn1d.test(
+            initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['CNN2d'][key] = self.cnn2d.test(
+            initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['GRU'][key] = self.gru.test(
+            initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['Deep-CNN'][key] = self.deep_cnn.test(
+            initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['CNN-GRU'][key] = self.cnn_gru.test(
+            initial_investment=self.test_data_first_price).get_daily_portfolio_value()
+        self.test_portfolios['CNN-ATTN'][key] = self.cnn_attn.test(
+            initial_investment=self.test_data_first_price).get_daily_portfolio_value()
 
-        self.train_portfolios['DQN-pattern'][key] = self.dqn_pattern.test(test_type='train').get_daily_portfolio_value()
-        self.train_portfolios['DQN-vanilla'][key] = self.dqn_vanilla.test(test_type='train').get_daily_portfolio_value()
+        self.train_portfolios['DQN-pattern'][key] = self.dqn_pattern.test(
+            test_type='train').get_daily_portfolio_value()
+        self.train_portfolios['DQN-vanilla'][key] = self.dqn_vanilla.test(
+            test_type='train').get_daily_portfolio_value()
         self.train_portfolios['DQN-candlerep'][
             key] = self.dqn_candle_rep.test(test_type='train').get_daily_portfolio_value()
-        self.train_portfolios['DQN-windowed'][key] = self.dqn_windowed.test(test_type='train').get_daily_portfolio_value()
-        self.train_portfolios['MLP-pattern'][key] = self.mlp_pattern.test(test_type='train').get_daily_portfolio_value()
-        self.train_portfolios['MLP-vanilla'][key] = self.mlp_vanilla.test(test_type='train').get_daily_portfolio_value()
+        self.train_portfolios['DQN-windowed'][key] = self.dqn_windowed.test(
+            test_type='train').get_daily_portfolio_value()
+        self.train_portfolios['MLP-pattern'][key] = self.mlp_pattern.test(
+            test_type='train').get_daily_portfolio_value()
+        self.train_portfolios['MLP-vanilla'][key] = self.mlp_vanilla.test(
+            test_type='train').get_daily_portfolio_value()
         self.train_portfolios['MLP-candlerep'][
             key] = self.mlp_candle_rep.test(test_type='train').get_daily_portfolio_value()
-        self.train_portfolios['MLP-windowed'][key] = self.mlp_windowed.test(test_type='train').get_daily_portfolio_value()
-        self.train_portfolios['CNN1d'][key] = self.cnn1d.test(test_type='train').get_daily_portfolio_value()
-        self.train_portfolios['CNN2d'][key] = self.cnn2d.test(test_type='train').get_daily_portfolio_value()
-        self.train_portfolios['GRU'][key] = self.gru.test(test_type='train').get_daily_portfolio_value()
-        self.train_portfolios['Deep-CNN'][key] = self.deep_cnn.test(test_type='train').get_daily_portfolio_value()
-        self.train_portfolios['CNN-GRU'][key] = self.cnn_gru.test(test_type='train').get_daily_portfolio_value()
-        self.train_portfolios['CNN-ATTN'][key] = self.cnn_attn.test(test_type='train').get_daily_portfolio_value()
+        self.train_portfolios['MLP-windowed'][key] = self.mlp_windowed.test(
+            test_type='train').get_daily_portfolio_value()
+        self.train_portfolios['CNN1d'][key] = self.cnn1d.test(
+            test_type='train').get_daily_portfolio_value()
+        self.train_portfolios['CNN2d'][key] = self.cnn2d.test(
+            test_type='train').get_daily_portfolio_value()
+        self.train_portfolios['GRU'][key] = self.gru.test(
+            test_type='train').get_daily_portfolio_value()
+        self.train_portfolios['Deep-CNN'][key] = self.deep_cnn.test(
+            test_type='train').get_daily_portfolio_value()
+        self.train_portfolios['CNN-GRU'][key] = self.cnn_gru.test(
+            test_type='train').get_daily_portfolio_value()
+        self.train_portfolios['CNN-ATTN'][key] = self.cnn_attn.test(
+            test_type='train').get_daily_portfolio_value()
 
-        self.validation_portfolios['DQN-pattern'][key] = self.dqn_pattern.test(test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
-        self.validation_portfolios['DQN-vanilla'][key] = self.dqn_vanilla.test(test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
+        self.validation_portfolios['DQN-pattern'][key] = self.dqn_pattern.test(
+            test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
+        self.validation_portfolios['DQN-vanilla'][key] = self.dqn_vanilla.test(
+            test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
         self.validation_portfolios['DQN-candlerep'][
             key] = self.dqn_candle_rep.test(test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
-        self.validation_portfolios['DQN-windowed'][key] = self.dqn_windowed.test(test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
-        self.validation_portfolios['MLP-pattern'][key] = self.mlp_pattern.test(test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
-        self.validation_portfolios['MLP-vanilla'][key] = self.mlp_vanilla.test(test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
+        self.validation_portfolios['DQN-windowed'][key] = self.dqn_windowed.test(
+            test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
+        self.validation_portfolios['MLP-pattern'][key] = self.mlp_pattern.test(
+            test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
+        self.validation_portfolios['MLP-vanilla'][key] = self.mlp_vanilla.test(
+            test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
         self.validation_portfolios['MLP-candlerep'][
             key] = self.mlp_candle_rep.test(test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
-        self.validation_portfolios['MLP-windowed'][key] = self.mlp_windowed.test(test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
-        self.validation_portfolios['CNN1d'][key] = self.cnn1d.test(test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
-        self.validation_portfolios['CNN2d'][key] = self.cnn2d.test(test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
-        self.validation_portfolios['GRU'][key] = self.gru.test(test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
-        self.validation_portfolios['Deep-CNN'][key] = self.deep_cnn.test(test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
-        self.validation_portfolios['CNN-GRU'][key] = self.cnn_gru.test(test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
-        self.validation_portfolios['CNN-ATTN'][key] = self.cnn_attn.test(test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
+        self.validation_portfolios['MLP-windowed'][key] = self.mlp_windowed.test(
+            test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
+        self.validation_portfolios['CNN1d'][key] = self.cnn1d.test(
+            test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
+        self.validation_portfolios['CNN2d'][key] = self.cnn2d.test(
+            test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
+        self.validation_portfolios['GRU'][key] = self.gru.test(
+            test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
+        self.validation_portfolios['Deep-CNN'][key] = self.deep_cnn.test(
+            test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
+        self.validation_portfolios['CNN-GRU'][key] = self.cnn_gru.test(
+            test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
+        self.validation_portfolios['CNN-ATTN'][key] = self.cnn_attn.test(
+            test_type='validation', initial_investment=self.val_data_first_price).get_daily_portfolio_value()
 
     def average_return(self):
         self.avg_returns = {}
         for model_name in self.test_portfolios.keys():
             for gamma in self.test_portfolios[model_name]:
                 self.avg_returns[model_name] = (self.test_portfolios[model_name][gamma][-1] - self.test_portfolios[model_name][gamma][0]) \
-                * 100 / self.test_portfolios[model_name][gamma][0]
+                    * 100 / self.test_portfolios[model_name][gamma][0]
         return self.avg_returns
 
     def plot_and_save_sensitivity(self, data_set='test'):
         data = None
         if data_set == 'train':
-            data = self.train_portfolios 
+            data = self.train_portfolios
         elif data_set == 'validation':
-            data = self.validation_portfolios 
+            data = self.validation_portfolios
         else:
             data = self.test_portfolios
 
-        portfolio_plot_path = os.path.join(self.experiment_path, f'plots/portfolio/on_{data_set}')
+        portfolio_plot_path = os.path.join(
+            self.experiment_path, f'plots/portfolio/on_{data_set}')
         if not os.path.exists(portfolio_plot_path):
             os.makedirs(portfolio_plot_path)
 
@@ -681,35 +753,39 @@ class SensitivityRun:
                     for i in range(len(data[model_name][gamma]))]
 
                 if data_set == 'test':
-                    difference = len(data[model_name][gamma]) - len(self.data_loader.data_test_with_date)
+                    difference = len(data[model_name][gamma]) - \
+                        len(self.data_loader.data_test_with_date)
                     prediction_df = pd.DataFrame({'date': self.data_loader.data_test_with_date.index,
-                                                'portfolio': profit_percentage[difference:]})
+                                                  'portfolio': profit_percentage[difference:]})
                 elif data_set == 'train':
-                    difference = len(data[model_name][gamma]) - len(self.data_loader.data_train_with_date)
+                    difference = len(data[model_name][gamma]) - \
+                        len(self.data_loader.data_train_with_date)
                     prediction_df = pd.DataFrame({'date': self.data_loader.data_train_with_date.index,
-                                                'portfolio': profit_percentage[difference:]})
-                    
+                                                  'portfolio': profit_percentage[difference:]})
+
                 elif data_set == 'validation':
-                    difference = len(data[model_name][gamma]) - len(self.data_loader.data_validation_with_date)
+                    difference = len(data[model_name][gamma]) - \
+                        len(self.data_loader.data_validation_with_date)
                     prediction_df = pd.DataFrame({'date': self.data_loader.data_validation_with_date.index,
-                                                'portfolio': profit_percentage[difference:]})
+                                                  'portfolio': profit_percentage[difference:]})
 
                 # Add a trace for each line
-                fig.add_trace(go.Scatter(x=prediction_df['date'], y=prediction_df['portfolio'], 
-                                        mode='lines', name=gamma, line=dict(color=color)), secondary_y=False)
+                fig.add_trace(go.Scatter(x=prediction_df['date'], y=prediction_df['portfolio'],
+                                         mode='lines', name=gamma, line=dict(color=color)), secondary_y=False)
 
             # Update plot layout
             fig.update_layout(title=f'Tuning Hyperparameters of {model_name} using {self.evaluation_parameter} on {data_set} data',
-                            xaxis_title='Time',
-                            yaxis_title='% Rate of Return',
-                            legend_title="Gamma Values",
-                            font=dict(size=10))
+                              xaxis_title='Time',
+                              yaxis_title='% Rate of Return',
+                              legend_title="Gamma Values",
+                              font=dict(size=10))
 
             fig_file = os.path.join(portfolio_plot_path, f'{model_name}.html')
             fig.write_html(fig_file)  # Save plot as an interactive HTML file
 
     def plot_and_save_return(self):
-        prediction_plot_path = os.path.join(self.experiment_path, 'plots/prediction')
+        prediction_plot_path = os.path.join(
+            self.experiment_path, 'plots/prediction')
         if not os.path.exists(prediction_plot_path):
             os.makedirs(prediction_plot_path)
 
@@ -717,32 +793,38 @@ class SensitivityRun:
             fig = go.Figure()
 
             # Train data
-            train_df = pd.DataFrame(self.data_loader.data_train_with_date.close, index=self.data_loader.data.index)
-            fig.add_trace(go.Scatter(x=train_df.index, y=train_df['close'], mode='lines', name='Train'))
+            train_df = pd.DataFrame(
+                self.data_loader.data_train_with_date.close, index=self.data_loader.data.index)
+            fig.add_trace(go.Scatter(x=train_df.index,
+                          y=train_df['close'], mode='lines', name='Train'))
 
             # Test data
-            test_df = pd.Series(self.data_loader.data_test_with_date.close, index=self.data_loader.data.index)
-            fig.add_trace(go.Scatter(x=test_df.index, y=test_df, mode='lines', name='Test', line=dict(color='red')))
+            test_df = pd.Series(
+                self.data_loader.data_test_with_date.close, index=self.data_loader.data.index)
+            fig.add_trace(go.Scatter(x=test_df.index, y=test_df,
+                          mode='lines', name='Test', line=dict(color='red')))
 
             # Predictions
             colors = px.colors.qualitative.Plotly
             for gamma, color in zip(self.test_portfolios[model_name], colors):
-                difference = len(self.test_portfolios[model_name][gamma]) - len(self.data_loader.data_test_with_date)
-                prediction_series = pd.Series(self.test_portfolios[model_name][gamma][difference:], 
-                                            index=self.data_loader.data_test_with_date.index)
-                prediction_series = prediction_series.reindex(self.data_loader.data.index, fill_value=np.nan)
-                fig.add_trace(go.Scatter(x=prediction_series.index, y=prediction_series, mode='lines', name=gamma, line=dict(color=color)))
+                difference = len(
+                    self.test_portfolios[model_name][gamma]) - len(self.data_loader.data_test_with_date)
+                prediction_series = pd.Series(self.test_portfolios[model_name][gamma][difference:],
+                                              index=self.data_loader.data_test_with_date.index)
+                prediction_series = prediction_series.reindex(
+                    self.data_loader.data.index, fill_value=np.nan)
+                fig.add_trace(go.Scatter(x=prediction_series.index, y=prediction_series,
+                              mode='lines', name=gamma, line=dict(color=color)))
 
             # Update plot layout
             fig.update_layout(title=f'Train, Test and Prediction of model {model_name} on dataset {self.dataset_name}',
-                            xaxis_title='Time',
-                            yaxis_title='Close Price',
-                            legend_title="Legend",
-                            font=dict(size=10))
+                              xaxis_title='Time',
+                              yaxis_title='Close Price',
+                              legend_title="Legend",
+                              font=dict(size=10))
 
             fig_file = os.path.join(prediction_plot_path, f'{model_name}.html')
             fig.write_html(fig_file)  # Save plot as an interactive HTML file
-
 
     def save_portfolios(self):
         path = os.path.join(self.experiment_path, 'portfolios.pkl')
@@ -755,12 +837,13 @@ class SensitivityRun:
         self.plot_and_save_return()
         self.save_portfolios()
 
+
 iter = 50
 init_set = 15
 optimizer_name = 'Simple BO'
 
 # gamma, log2(batch_size), log2(replay_memory_size), log2(n_step), n_episodes / 10
-bounds = torch.tensor([[0.4, 3.0, 3.0, 1.0, 1.0], [1.0, 9.0, 9.0, 6.0, 6.0]]) 
+bounds = torch.tensor([[0.4, 3.0, 3.0, 1.0, 1.0], [1.0, 9.0, 9.0, 6.0, 6.0]])
 types = [torch.float64, torch.int64, torch.int64, torch.int64, torch.int64]
 
 n_step = 8
@@ -790,6 +873,7 @@ run = SensitivityRun(
     evaluation_parameter=optimizer_name,
     transaction_cost=0)
 
+
 def objective_func(params):
     run.gamma = round(params[0].item(), 2)
     run.batch_size = 2 ** params[1].to(torch.int32).item()
@@ -799,9 +883,11 @@ def objective_func(params):
     run.reset()
     run.train()
     run.evaluate_sensitivity()
-    eval = torch.max(torch.tensor(list(run.average_return().values()), dtype=torch.float64))
+    eval = torch.max(torch.tensor(
+        list(run.average_return().values()), dtype=torch.float64))
     eval = torch.tensor(5)
     return eval
+
 
 optimizer = SimpleBayesianOptimizer(objective_func, bounds, types)
 optimizer.simple_BO(n_steps=iter, n_init_points=init_set)
