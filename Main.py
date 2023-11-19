@@ -18,11 +18,8 @@ from DeepRLAgent.VanillaInput.Train import Train as DeepRL
 # Imports Optimizer
 from Optimizer.SimpleBayesianOptimizer import SimpleBayesianOptimizer
 
-import matplotlib.pyplot as plt
-import seaborn as sns
 import pandas as pd
 import torch
-from tqdm import tqdm
 import os
 import numpy as np
 from utils import save_pkl, load_pkl
@@ -33,78 +30,99 @@ from plotly.subplots import make_subplots
 import plotly.express as px
 
 DATA_LOADERS = {
-    'BTC-USD': YahooFinanceDataLoader('BTC-USD',
-                                      split_point='2022-01-01',
-                                      validation_split_point='2023-01-01',
-                                      load_from_file=False),
+    'BTC-USD': YahooFinanceDataLoader(
+        'BTC-USD',
+        split_point='2022-01-01',
+        validation_split_point='2023-01-01',
+        load_from_file=False
+    ),
 
-    'GOOGL': YahooFinanceDataLoader('GOOGL',
-                                    split_point='2018-01-01',
-                                    validation_split_point='2018-01-01',
-                                    load_from_file=True),
+    'GOOGL': YahooFinanceDataLoader(
+        'GOOGL',
+        split_point='2018-01-01',
+        validation_split_point='2018-01-01',
+        load_from_file=True
+    ),
 
-    'AAPL': YahooFinanceDataLoader('AAPL',
-                                   split_point='2018-01-01',
-                                   validation_split_point='2018-01-01',
-                                   begin_date='2010-01-01',
-                                   end_date='2020-08-24',
-                                   load_from_file=True),
+    'AAPL': YahooFinanceDataLoader(
+        'AAPL',
+        split_point='2018-01-01',
+        validation_split_point='2018-01-01',
+        begin_date='2010-01-01',
+        end_date='2020-08-24',
+        load_from_file=True
+    ),
 
-    'DJI': YahooFinanceDataLoader('DJI',
-                                  split_point='2016-01-01',
-                                  validation_split_point='2018-01-01',
-                                  begin_date='2009-01-01',
-                                  end_date='2018-09-30',
-                                  load_from_file=True),
+    'DJI': YahooFinanceDataLoader(
+        'DJI',
+        split_point='2016-01-01',
+        validation_split_point='2018-01-01',
+        begin_date='2009-01-01',
+        end_date='2018-09-30',
+        load_from_file=True
+    ),
 
-    'S&P': YahooFinanceDataLoader('S&P',
-                                  split_point=2000,
-                                  validation_split_point=2000,
-                                  end_date='2018-09-25',
-                                  load_from_file=True),
+    'S&P': YahooFinanceDataLoader(
+        'S&P',
+        split_point=2000,
+        validation_split_point=2000,
+        end_date='2018-09-25',
+        load_from_file=True
+    ),
 
-    'AMD': YahooFinanceDataLoader('AMD',
-                                  split_point=2000,
-                                  validation_split_point=2000,
-                                  end_date='2018-09-25',
-                                  load_from_file=True),
+    'AMD': YahooFinanceDataLoader(
+        'AMD',
+        split_point=2000,
+        validation_split_point=2000,
+        end_date='2018-09-25',
+        load_from_file=True
+    ),
 
-    'GE': YahooFinanceDataLoader('GE',
-                                 split_point='2015-01-01',
-                                 validation_split_point='2015-01-01',
-                                 load_from_file=True),
+    'GE': YahooFinanceDataLoader(
+        'GE',
+        split_point='2015-01-01',
+        validation_split_point='2015-01-01',
+        load_from_file=True
+    ),
 
-    'KSS': YahooFinanceDataLoader('KSS',
-                                  split_point='2018-01-01',
-                                  validation_split_point='2018-01-01',
-                                  load_from_file=True),
+    'KSS': YahooFinanceDataLoader(
+        'KSS',
+        split_point='2018-01-01',
+        validation_split_point='2018-01-01',
+        load_from_file=True
+    ),
 
-    'HSI': YahooFinanceDataLoader('HSI',
-                                  split_point='2015-01-01',
-                                  validation_split_point='2015-01-01',
-                                  load_from_file=True),
+    'HSI': YahooFinanceDataLoader(
+        'HSI',
+        split_point='2015-01-01',
+        validation_split_point='2015-01-01',
+        load_from_file=True
+    ),
 
-    'AAL': YahooFinanceDataLoader('AAL',
-                                  split_point='2018-01-01',
-                                  validation_split_point='2018-01-01',
-                                  load_from_file=True)
+    'AAL': YahooFinanceDataLoader(
+        'AAL',
+        split_point='2018-01-01',
+        validation_split_point='2018-01-01',
+        load_from_file=True
+    )
 }
 
 
 class SensitivityRun:
-    def __init__(self,
-                 dataset_name,
-                 gamma,
-                 batch_size,
-                 replay_memory_size,
-                 feature_size,
-                 target_update,
-                 n_episodes,
-                 n_step,
-                 window_size,
-                 device,
-                 evaluation_parameter='gamma',
-                 transaction_cost=0):
+    def __init__(
+        self,
+            dataset_name,
+            gamma,
+            batch_size,
+            replay_memory_size,
+            feature_size,
+            target_update,
+            n_episodes,
+            n_step,
+            window_size,
+            device,
+            evaluation_parameter='gamma',
+            transaction_cost=0):
         """
 
         @param data_loader:
@@ -180,50 +198,53 @@ class SensitivityRun:
             os.makedirs(self.experiment_path)
 
         self.reset()
-        self.test_portfolios = {'DQN-pattern': {},
-                                'DQN-vanilla': {},
-                                'DQN-candlerep': {},
-                                'DQN-windowed': {},
-                                'MLP-pattern': {},
-                                'MLP-vanilla': {},
-                                'MLP-candlerep': {},
-                                'MLP-windowed': {},
-                                'CNN1d': {},
-                                'CNN2d': {},
-                                'GRU': {},
-                                'Deep-CNN': {},
-                                'CNN-GRU': {},
-                                'CNN-ATTN': {}}
+        self.test_portfolios = {
+            'DQN-pattern': {},
+            'DQN-vanilla': {},
+            'DQN-candlerep': {},
+            'DQN-windowed': {},
+            'MLP-pattern': {},
+            'MLP-vanilla': {},
+            'MLP-candlerep': {},
+            'MLP-windowed': {},
+            'CNN1d': {},
+            'CNN2d': {},
+            'GRU': {},
+            'Deep-CNN': {},
+            'CNN-GRU': {},
+            'CNN-ATTN': {}}
 
-        self.train_portfolios = {'DQN-pattern': {},
-                                 'DQN-vanilla': {},
-                                 'DQN-candlerep': {},
-                                 'DQN-windowed': {},
-                                 'MLP-pattern': {},
-                                 'MLP-vanilla': {},
-                                 'MLP-candlerep': {},
-                                 'MLP-windowed': {},
-                                 'CNN1d': {},
-                                 'CNN2d': {},
-                                 'GRU': {},
-                                 'Deep-CNN': {},
-                                 'CNN-GRU': {},
-                                 'CNN-ATTN': {}}
+        self.train_portfolios = {
+            'DQN-pattern': {},
+            'DQN-vanilla': {},
+            'DQN-candlerep': {},
+            'DQN-windowed': {},
+            'MLP-pattern': {},
+            'MLP-vanilla': {},
+            'MLP-candlerep': {},
+            'MLP-windowed': {},
+            'CNN1d': {},
+            'CNN2d': {},
+            'GRU': {},
+            'Deep-CNN': {},
+            'CNN-GRU': {},
+            'CNN-ATTN': {}}
 
-        self.validation_portfolios = {'DQN-pattern': {},
-                                      'DQN-vanilla': {},
-                                      'DQN-candlerep': {},
-                                      'DQN-windowed': {},
-                                      'MLP-pattern': {},
-                                      'MLP-vanilla': {},
-                                      'MLP-candlerep': {},
-                                      'MLP-windowed': {},
-                                      'CNN1d': {},
-                                      'CNN2d': {},
-                                      'GRU': {},
-                                      'Deep-CNN': {},
-                                      'CNN-GRU': {},
-                                      'CNN-ATTN': {}}
+        self.validation_portfolios = {
+            'DQN-pattern': {},
+            'DQN-vanilla': {},
+            'DQN-candlerep': {},
+            'DQN-windowed': {},
+            'MLP-pattern': {},
+            'MLP-vanilla': {},
+            'MLP-candlerep': {},
+            'MLP-windowed': {},
+            'CNN1d': {},
+            'CNN2d': {},
+            'GRU': {},
+            'Deep-CNN': {},
+            'CNN-GRU': {},
+            'CNN-ATTN': {}}
 
     def reset(self):
         self.load_data()
@@ -253,7 +274,7 @@ class SensitivityRun:
                 self.batch_size,
                 self.window_size,
                 self.transaction_cost)
-        
+
         self.dataValidation_autoPatternExtractionAgent = \
             DataAutoPatternExtractionAgent(
                 self.data_loader.data_validation,
@@ -265,7 +286,7 @@ class SensitivityRun:
                 self.batch_size,
                 self.window_size,
                 self.transaction_cost)
-        
+
         self.dataTrain_patternBased = \
             DataForPatternBasedAgent(
                 self.data_loader.data_train,
@@ -306,7 +327,7 @@ class SensitivityRun:
                 self.gamma, self.n_step, self.batch_size,
                 self.window_size,
                 self.transaction_cost)
-        
+
         self.dataTest_autoPatternExtractionAgent_candle_rep = \
             DataAutoPatternExtractionAgent(
                 self.data_loader.data_test,
@@ -317,7 +338,7 @@ class SensitivityRun:
                 self.batch_size,
                 self.window_size,
                 self.transaction_cost)
-        
+
         self.dataValidation_autoPatternExtractionAgent_candle_rep = \
             DataAutoPatternExtractionAgent(
                 self.data_loader.data_validation,
@@ -339,7 +360,7 @@ class SensitivityRun:
                 self.batch_size,
                 self.window_size,
                 self.transaction_cost)
-        
+
         self.dataTest_autoPatternExtractionAgent_windowed = \
             DataAutoPatternExtractionAgent(
                 self.data_loader.data_test,
@@ -777,7 +798,7 @@ class SensitivityRun:
             fig.update_layout(title=f'Tuning Hyperparameters of {model_name} using {self.evaluation_parameter} on {data_set} data',
                               xaxis_title='Time',
                               yaxis_title='% Rate of Return',
-                              legend_title="Gamma Values",
+                              legend_title="Hyper-parameters",
                               font=dict(size=10))
 
             fig_file = os.path.join(portfolio_plot_path, f'{model_name}.html')
@@ -791,22 +812,22 @@ class SensitivityRun:
 
         for model_name in self.test_portfolios.keys():
             fig = go.Figure()
+            colors = px.colors.qualitative.Plotly
 
             # Train data
             train_df = pd.DataFrame(
                 self.data_loader.data_train_with_date.close, index=self.data_loader.data.index)
             fig.add_trace(go.Scatter(x=train_df.index,
-                          y=train_df['close'], mode='lines', name='Train'))
+                          y=train_df['close'], mode='lines', name='Train', line=dict(color=colors[0])))
 
             # Test data
             test_df = pd.Series(
                 self.data_loader.data_test_with_date.close, index=self.data_loader.data.index)
             fig.add_trace(go.Scatter(x=test_df.index, y=test_df,
-                          mode='lines', name='Test', line=dict(color='red')))
+                          mode='lines', name='Test', line=dict(color=colors[1])))
 
             # Predictions
-            colors = px.colors.qualitative.Plotly
-            for gamma, color in zip(self.test_portfolios[model_name], colors):
+            for gamma, color in zip(self.test_portfolios[model_name], colors[2:]):
                 difference = len(
                     self.test_portfolios[model_name][gamma]) - len(self.data_loader.data_test_with_date)
                 prediction_series = pd.Series(self.test_portfolios[model_name][gamma][difference:],
@@ -838,9 +859,8 @@ class SensitivityRun:
         self.save_portfolios()
 
 
-iter = 50
-init_set = 15
-optimizer_name = 'Simple BO'
+iter = 1
+init_set = 2
 
 # gamma, log2(batch_size), log2(replay_memory_size), log2(n_step), n_episodes / 10
 bounds = torch.tensor([[0.4, 3.0, 3.0, 1.0, 1.0], [1.0, 9.0, 9.0, 6.0, 6.0]])
@@ -870,7 +890,6 @@ run = SensitivityRun(
     n_step,
     window_size,
     device,
-    evaluation_parameter=optimizer_name,
     transaction_cost=0)
 
 
@@ -885,17 +904,19 @@ def objective_func(params):
     run.evaluate_sensitivity()
     eval = torch.max(torch.tensor(
         list(run.average_return().values()), dtype=torch.float64))
-    eval = torch.tensor(5)
     return eval
 
 
 optimizer = SimpleBayesianOptimizer(objective_func, bounds, types)
+run.evaluation_parameter = optimizer.optimizer_name
 optimizer.simple_BO(n_steps=iter, n_init_points=init_set)
 
 run.save_experiment()
 
-path = os.path.join(os.getcwd(), f'run/{optimizer_name}/')
+path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/')
 if not os.path.exists(path):
     os.makedirs(path)
 save_pkl(os.path.join(path, 'run.pkl'), run)
 save_pkl(os.path.join(path, 'optimizer.pkl'), optimizer)
+
+optimizer.save_plots(path)

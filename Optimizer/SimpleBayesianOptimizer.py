@@ -7,6 +7,9 @@ from botorch.acquisition import UpperConfidenceBound, qExpectedImprovement
 
 import torch
 from tqdm import tqdm
+import plotly.graph_objects as go
+import os
+import numpy as np
 
 class SimpleBayesianOptimizer:
     def __init__(self, objective_function, bounds, types, X_init=None, Y_init=None):
@@ -21,6 +24,7 @@ class SimpleBayesianOptimizer:
         self.best = None
         self.min_lose = torch.inf
         self.history = {'X': [], 'Y': []}
+        self.optimizer_name = 'Simple BO'
 
     def generate_random_tensor(self, n_sample=1):
         tensor = torch.rand((n_sample, self.x_dim), dtype=torch.float64)
@@ -68,7 +72,6 @@ class SimpleBayesianOptimizer:
         for _ in range(n_steps):
             self.fit_model(self.X, self.Y)
             next_point = self.select_next_point(acquisition_func).flatten()
-            print('next', next_point)
             Y_next = torch.tensor([self.function(next_point)])
             self.X = torch.vstack((self.X, next_point))
             self.Y = torch.vstack((self.Y, Y_next))
@@ -80,3 +83,32 @@ class SimpleBayesianOptimizer:
             pbar.update(1)
         pbar.close()
         return self.best
+
+    def save_plots(self, path):
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=np.arange(self.Y.flatten().shape[-1]), y=self.Y.flatten(), mode='lines'))
+
+        fig.update_layout(
+            xaxis_title="Iteration No.",
+            yaxis_title="Loss",
+            title="Progress of Bayesian Optimization",
+            font=dict(size=10),
+            xaxis=dict(showgrid=False),  # Disable x-axis gridlines
+            yaxis=dict(showgrid=False),  # Disable y-axis gridlines
+        )
+
+        fig_file = os.path.join(path, f'{self.optimizer_name} progress.html')
+        fig.write_html(fig_file)  # Save plot as an interactive HTML file
+
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=np.arange(len(self.history['Y'])), y=self.history['Y'], mode='lines'))
+
+        fig.update_layout(
+            xaxis_title="Iteration No.",
+            yaxis_title="Best Loss",
+            title="Best Loss Found Till Each Iteration",
+            font=dict(size=10)
+        )
+
+        fig_file = os.path.join(path, f'{self.optimizer_name} best loss.html')
+        fig.write_html(fig_file)  # Save plot as an interactive HTML file
