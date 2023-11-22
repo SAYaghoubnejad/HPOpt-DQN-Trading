@@ -62,9 +62,10 @@ class SimpleBayesianOptimizer:
         return next_point
 
     def simple_BO(self, n_steps=10, acquisition_func="UCB", n_init_points=5):
-        if self.X == None or self.Y == None:
+        if self.X is None or self.Y is None:
             self.X, self.Y = self.initialize_data(n_init_points)
         self.min_lose = torch.max(self.Y)
+        print(torch.where((self.Y == self.min_lose)[0], 1.0, 0.0))
         self.best = self.X[torch.where(self.Y == self.min_lose, 1.0, 0.0).to(torch.int)]
         self.history['X'].append(self.best)
         self.history['Y'].append(self.min_lose.item())
@@ -93,8 +94,6 @@ class SimpleBayesianOptimizer:
             yaxis_title="Loss",
             title="Progress of Bayesian Optimization",
             font=dict(size=10),
-            xaxis=dict(showgrid=False),  # Disable x-axis gridlines
-            yaxis=dict(showgrid=False),  # Disable y-axis gridlines
         )
 
         fig_file = os.path.join(path, f'{self.optimizer_name} progress.html')
