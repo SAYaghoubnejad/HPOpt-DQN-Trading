@@ -22,7 +22,7 @@ class SimpleBayesianOptimizer:
         self.Y = Y_init
         self.x_dim = bounds.shape[1]
         self.best = None
-        self.min_lose = torch.inf
+        self.max_obj_value = -1 * torch.inf
         self.history = {'X': [], 'Y': []}
         self.optimizer_name = 'Simple BO'
 
@@ -40,7 +40,7 @@ class SimpleBayesianOptimizer:
         X_init = self.generate_random_tensor(n_init_points)
         Y_init = torch.empty((n_init_points, 1), dtype=torch.float64)
         for index in range(n_init_points):
-            Y_init[index][0] = self.function(X_init[index].flatten())
+            Y_init[index][0], X_init[index] = self.function(X_init[index].flatten())
         return X_init, Y_init
 
     def fit_model(self, X, Y):
@@ -52,9 +52,9 @@ class SimpleBayesianOptimizer:
         # Placeholder for the acquisition function selection logic
         # This is where GP-Hedge, No-Past-BO, and SETUP-BO would be implemented
         if acquisition_func == "UCB":
-            acq_func = UpperConfidenceBound(self.model, beta=0.1)
+            acq_func = UpperConfidenceBound(self.model, beta=10)
         elif acquisition_func == "EI":
-            acq_func = qExpectedImprovement(self.model, best_f=self.function.optimal_value)
+            acq_func = qExpectedImprovement(self.model, best_f=self.max_obj_value)
         # Add other acquisition functions as needed
         next_point, _ = optimize_acqf(
             acq_func, bounds=self.bounds, q=1, num_restarts=5, raw_samples=20
@@ -64,23 +64,23 @@ class SimpleBayesianOptimizer:
     def simple_BO(self, n_steps=10, acquisition_func="UCB", n_init_points=5):
         if self.X is None or self.Y is None:
             self.X, self.Y = self.initialize_data(n_init_points)
-        self.min_lose = torch.max(self.Y)
-        print(torch.where((self.Y == self.min_lose)[0], 1.0, 0.0))
-        self.best = self.X[torch.where(self.Y == self.min_lose, 1.0, 0.0).to(torch.int)]
+        self.max_obj_value = torch.max(self.Y)
+        print(torch.where((self.Y == self.max_obj_value)[0], 1.0, 0.0))
+        self.best = self.X[torch.where(self.Y == self.max_obj_value, 1.0, 0.0).to(torch.int)]
         self.history['X'].append(self.best)
-        self.history['Y'].append(self.min_lose.item())
+        self.history['Y'].append(self.max_obj_value.item())
         pbar = tqdm(n_steps)
         for _ in range(n_steps):
             self.fit_model(self.X, self.Y)
             next_point = self.select_next_point(acquisition_func).flatten()
-            Y_next = torch.tensor([self.function(next_point)])
-            self.X = torch.vstack((self.X, next_point))
+            Y_next, X_next = self.function(next_point)
+            self.X = torch.vstack((self.X, X_next))
             self.Y = torch.vstack((self.Y, Y_next))
-            if Y_next.item() > self.min_lose:
-                self.min_lose = Y_next.item()
-                self.best = next_point
+            if Y_next.item() > self.max_obj_value:
+                self.max_obj_value = Y_next.item()
+                self.best = X_next
             self.history['X'].append(self.best)
-            self.history['Y'].append(self.min_lose)
+            self.history['Y'].append(self.max_obj_value)
             pbar.update(1)
         pbar.close()
         return self.best
