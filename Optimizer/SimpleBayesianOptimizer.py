@@ -4,6 +4,8 @@ from botorch.acquisition.monte_carlo import qNoisyExpectedImprovement
 from botorch.optim import optimize_acqf
 from gpytorch.mlls import ExactMarginalLogLikelihood
 from botorch.acquisition import UpperConfidenceBound, qExpectedImprovement
+from gpytorch.likelihoods import GaussianLikelihood
+
 
 import torch
 from tqdm import tqdm
@@ -12,7 +14,7 @@ import os
 import numpy as np
 
 class SimpleBayesianOptimizer:
-    def __init__(self, objective_function, bounds, types, X_init=None, Y_init=None):
+    def __init__(self, objective_function, bounds, types, X_init=None, Y_init=None, name='Simple BO'):
         self.function: function = objective_function
         self.bounds = bounds
         self.types = types
@@ -24,7 +26,7 @@ class SimpleBayesianOptimizer:
         self.best = None
         self.max_obj_value = -1 * torch.inf
         self.history = {'X': [], 'Y': []}
-        self.optimizer_name = 'Simple BO'
+        self.optimizer_name = name
 
     def generate_random_tensor(self, n_sample=1):
         tensor = torch.rand((n_sample, self.x_dim), dtype=torch.float64)
@@ -41,6 +43,11 @@ class SimpleBayesianOptimizer:
         Y_init = torch.empty((n_init_points, 1), dtype=torch.float64)
         for index in range(n_init_points):
             Y_init[index][0], X_init[index] = self.function(X_init[index].flatten())
+            if Y_init[index][0].item() > self.max_obj_value:
+                self.max_obj_value = Y_init[index][0].item()
+                self.best = X_init[index]
+            self.history['X'].append(self.best)
+            self.history['Y'].append(self.max_obj_value)
         return X_init, Y_init
 
     def fit_model(self, X, Y):

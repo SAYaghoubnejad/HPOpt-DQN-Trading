@@ -176,3 +176,22 @@ class YahooFinanceDataLoader:
         self.data['high_norm'] = min_max_scaler.fit_transform(self.data.high.values.reshape(-1, 1))
         self.data['low_norm'] = min_max_scaler.fit_transform(self.data.low.values.reshape(-1, 1))
         self.data['close_norm'] = min_max_scaler.fit_transform(self.data.close.values.reshape(-1, 1))
+
+    def calculate_max_return(self, data_set='Test'):
+        if data_set == 'Train':
+            data = self.data_train_with_date
+        elif data_set == 'Validation':
+            data = self.data_validation_with_date
+        else:
+            data = self.data_test_with_date
+
+        daily_returns = []
+        for index, data in data.iterrows():
+            daily_returns.append((data['close'] - data['open']) / data['open'])
+
+        res = 1
+        for ret in daily_returns:
+            if ret > 0:
+                res *= (1 + ret)
+
+        return res

@@ -2,6 +2,8 @@ import pickle
 import random
 import numpy as np
 import torch
+import os
+import time
 
 
 def save_pkl(path, obj):
@@ -15,7 +17,11 @@ def load_pkl(path):
     return obj
 
 
-def set_random_seed(seed):
+def set_random_seed(seed=None):
+    if seed is None:
+        # Generate a new random seed, e.g., based on the current time
+        seed = int(time.time()) + os.getpid()
+    
     torch.manual_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
