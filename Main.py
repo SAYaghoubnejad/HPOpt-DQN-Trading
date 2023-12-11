@@ -747,9 +747,15 @@ class SensitivityRun:
             self.data_loader.data_test_with_date.close, index=self.data_loader.data.index)
         fig.add_trace(go.Scatter(x=test_df.index, y=test_df,
                         mode='lines', name='Test', line=dict(color=colors[1])))
+        
+        # Validation data
+        val_df = pd.Series(
+            self.data_loader.data_validation_with_date.close, index=self.data_loader.data.index)
+        fig.add_trace(go.Scatter(x=val_df.index, y=val_df,
+                        mode='lines', name='Validation', line=dict(color=colors[2])))
 
         # Predictions
-        for gamma, color in zip(self.test_portfolios[self.model_in_question], colors[2:]):
+        for gamma, color in zip(self.test_portfolios[self.model_in_question], colors[3:]):
             difference = len(
                 self.test_portfolios[self.model_in_question][gamma]) - len(self.data_loader.data_test_with_date)
             prediction_series = pd.Series(self.test_portfolios[self.model_in_question][gamma][difference:],
@@ -770,8 +776,12 @@ class SensitivityRun:
         fig.write_html(fig_file)  # Save plot as an interactive HTML file
 
     def save_portfolios(self):
-        path = os.path.join(self.experiment_path, 'portfolios.pkl')
+        path = os.path.join(self.experiment_path, 'test_portfolios.pkl')
         save_pkl(path, self.test_portfolios)
+        path = os.path.join(self.experiment_path, 'tain_portfolios.pkl')
+        save_pkl(path, self.train_portfolios)
+        path = os.path.join(self.experiment_path, 'validation_portfolios.pkl')
+        save_pkl(path, self.validation_portfolios)
 
     def save_experiment(self):
         self.plot_and_save_sensitivity(data_set='validation')
@@ -836,7 +846,6 @@ for model_name  in models:
     run.model_in_question = model_name
 
     def objective_func(params):
-        torch.ra
         print(params)
         run.gamma = round(params[0].item(), 2)
         run.batch_size = 2 ** params[1].to(torch.int32).item()

@@ -103,9 +103,13 @@ class SimpleBayesianOptimizer:
             font=dict(size=10),
         )
 
+        # Save plot as an file
         fig_file = os.path.join(path, f'{self.optimizer_name} progress.html')
-        fig.write_html(fig_file)  # Save plot as an interactive HTML file
-
+        fig.write_html(fig_file)
+        fig_file = os.path.join(path, f'{self.optimizer_name} progress.pdf')
+        fig.write_image(fig_file)
+        fig_file = os.path.join(path, f'{self.optimizer_name} progress.svg')
+        fig.write_image(fig_file)
         fig = go.Figure()
         fig.add_trace(go.Scatter(x=np.arange(len(self.history['Y'])), y=self.history['Y'], mode='lines'))
 
@@ -116,5 +120,10 @@ class SimpleBayesianOptimizer:
             font=dict(size=10)
         )
 
+        # Save plot as an file
         fig_file = os.path.join(path, f'{self.optimizer_name} best loss.html')
-        fig.write_html(fig_file)  # Save plot as an interactive HTML file
+        fig.write_html(fig_file)  
+        fig_file = os.path.join(path, f'{self.optimizer_name} best loss.pdf')
+        fig.write_image(fig_file)
+        fig_file = os.path.join(path, f'{self.optimizer_name} best loss.svg')
+        fig.write_image(fig_file)
