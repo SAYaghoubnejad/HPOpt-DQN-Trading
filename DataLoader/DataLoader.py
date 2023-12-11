@@ -189,9 +189,9 @@ class YahooFinanceDataLoader:
         for index, data in data.iterrows():
             daily_returns.append((data['close'] - data['open']) / data['open'])
 
-        res = 1
+        res = 100
         for ret in daily_returns:
-            if ret > 0:
-                res *= (1 + ret)
+            # if ret > 0:
+            res *= (1 + ret)
 
-        return res
+        return daily_returns
