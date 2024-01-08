@@ -860,7 +860,7 @@ for model_name  in models:
 
     optimizer = SimpleBayesianOptimizer(objective_func, bounds, types)
     run.evaluation_parameter = optimizer.optimizer_name
-    optimizer.simple_BO(n_steps=iter, n_init_points=init_set)
+    optimizer.optimize(n_steps=iter, n_init_points=init_set)
 
     run.save_experiment()
 

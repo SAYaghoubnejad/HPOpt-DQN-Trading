@@ -68,7 +68,7 @@ class SimpleBayesianOptimizer:
         )
         return next_point
 
-    def simple_BO(self, n_steps=10, acquisition_func="UCB", n_init_points=5):
+    def optimize(self, n_steps=10, acquisition_func="UCB", n_init_points=5):
         if self.X is None or self.Y is None:
             self.X, self.Y = self.initialize_data(n_init_points)
         self.max_obj_value = torch.max(self.Y)

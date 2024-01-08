@@ -21,7 +21,7 @@ import pandas as pd
 import torch
 from tqdm import tqdm
 import os
-from utils import save_pkl, load_pkl
+from utils import save_pkl, load_pkl, set_random_seed
 import plotly.graph_objs as go
 from plotly.subplots import make_subplots
 import plotly.express as px
@@ -760,7 +760,9 @@ class SensitivityRun:
         save_pkl(path, self.validation_portfolios)
 
     def save_experiment(self):
-        self.plot_and_save_sensitivity()
+        self.plot_and_save_sensitivity(data_set='validation')
+        self.plot_and_save_sensitivity(data_set='test')
+        self.plot_and_save_sensitivity(data_set='train')
         self.save_portfolios()
 
 
@@ -782,8 +784,8 @@ if __name__ == '__main__':
 
     pbar = tqdm(len(gamma_list) + len(replay_memory_size_list) + len(batch_size_list))
 
+    set_random_seed(42)
     # test gamma
-
     run = SensitivityRun(
         dataset_name,
         gamma_default,
