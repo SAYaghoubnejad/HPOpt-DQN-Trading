@@ -3,7 +3,7 @@ from botorch.models import SingleTaskGP
 from botorch.acquisition.monte_carlo import qNoisyExpectedImprovement
 from botorch.optim import optimize_acqf
 from gpytorch.mlls import ExactMarginalLogLikelihood
-from botorch.acquisition import UpperConfidenceBound, qExpectedImprovement
+from botorch.acquisition import UpperConfidenceBound, qExpectedImprovement, ProbabilityOfImprovement
 from gpytorch.likelihoods import GaussianLikelihood
 
 
@@ -62,6 +62,8 @@ class SimpleBayesianOptimizer:
             acq_func = UpperConfidenceBound(self.model, beta=10)
         elif acquisition_func == "EI":
             acq_func = qExpectedImprovement(self.model, best_f=self.max_obj_value)
+        elif acquisition_func == "PI":
+            acq_func = ProbabilityOfImprovement(self.model, best_f=self.max_obj_value)
         # Add other acquisition functions as needed
         next_point, _ = optimize_acqf(
             acq_func, bounds=self.bounds, q=1, num_restarts=5, raw_samples=20
