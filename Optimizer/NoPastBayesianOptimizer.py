@@ -1,16 +1,11 @@
-import torch
 import numpy as np
-from botorch.models import SingleTaskGP
-from botorch.fit import fit_gpytorch_model
-from gpytorch.mlls import ExactMarginalLogLikelihood
 from botorch.acquisition import UpperConfidenceBound, qExpectedImprovement, ProbabilityOfImprovement
 from botorch.optim import optimize_acqf
 from .GPHedgeOptimizer import GP_HedgeBayesianOptimizer
-from tqdm import tqdm
 
 class NoPastBayesianOptimizer(GP_HedgeBayesianOptimizer):
     def __init__(self, objective_function, bounds, types, eta=1.0, m=0.5, X_init=None, Y_init=None, name='No-PASt BO'):
-        super().__init__(objective_function, bounds, types, X_init, Y_init, name)
+        super().__init__(objective_function, bounds, types, eta, X_init, Y_init, name)
         self.eta = eta
         self.m = m  # m parameter for updating rewards
         self.acquisition_functions = {

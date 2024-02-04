@@ -48,10 +48,10 @@ class GP_HedgeBayesianOptimizer(SimpleBayesianOptimizer):
     def optimize(self, n_steps=10, n_init_points=5):
         if self.X is None or self.Y is None:
             self.X, self.Y = self.initialize_data(n_init_points)
-        self.max_obj_value = torch.max(self.Y)
+        self.max_obj_value = torch.max(self.Y).item()
         self.best = self.X[torch.where(self.Y == self.max_obj_value, 1.0, 0.0).to(torch.int)]
         self.history['X'].append(self.best)
-        self.history['Y'].append(self.max_obj_value.item())
+        self.history['Y'].append(self.max_obj_value)
         pbar = tqdm(range(n_steps))
         for _ in pbar:
             self.fit_model(self.X, self.Y)
