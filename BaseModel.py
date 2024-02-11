@@ -61,9 +61,9 @@ DATA_LOADERS = {
 
     'S&P': YahooFinanceDataLoader(
         'S&P',
-        split_point=2000,
-        validation_split_point=2000,
-        end_date='2018-09-25',
+        begin_date = '2020-01-01',
+        split_point='2023-08-01',
+        validation_split_point='2023-10-01',
         load_from_file=True
     ),
 
@@ -633,13 +633,7 @@ class SensitivityRun:
         self.cnn_attn.train(self.n_episodes)
 
     def evaluate_sensitivity(self):
-        key = None
-        if self.evaluation_parameter == 'gamma':
-            key = self.gamma
-        elif self.evaluation_parameter == 'batch size':
-            key = self.batch_size
-        elif self.evaluation_parameter == 'replay memory size':
-            key = self.replay_memory_size
+        key = f'G: {self.gamma}, BS: {self.batch_size}, RMS: {self.replay_memory_size}'
 
         self.train_portfolios['DQN-pattern'][key] = self.dqn_pattern.test(test_type='train').get_daily_portfolio_value()
         self.train_portfolios['DQN-vanilla'][key] = self.dqn_vanilla.test(test_type='train').get_daily_portfolio_value()
@@ -807,46 +801,12 @@ if __name__ == '__main__':
         run.evaluate_sensitivity()
         pbar.update(1)
 
-    run.save_experiment()
-
-    # test batch-size
-    run = SensitivityRun(
-        dataset_name,
-        gamma_default,
-        batch_size_default,
-        replay_memory_size_default,
-        feature_size,
-        target_update,
-        n_episodes,
-        n_step,
-        window_size,
-        device,
-        evaluation_parameter='batch size',
-        transaction_cost=0)
-
     for batch_size in batch_size_list:
         run.batch_size = batch_size
         run.reset()
         run.train()
         run.evaluate_sensitivity()
         pbar.update(1)
-
-    run.save_experiment()
-
-    # test replay memory size
-    run = SensitivityRun(
-        dataset_name,
-        gamma_default,
-        batch_size_default,
-        replay_memory_size_default,
-        feature_size,
-        target_update,
-        n_episodes,
-        n_step,
-        window_size,
-        device,
-        evaluation_parameter='replay memory size',
-        transaction_cost=0)
 
     for replay_memory_size in replay_memory_size_list:
         run.replay_memory_size = replay_memory_size

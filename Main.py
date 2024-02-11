@@ -65,9 +65,9 @@ DATA_LOADERS = {
 
     'S&P': YahooFinanceDataLoader(
         'S&P',
-        split_point=2000,
-        validation_split_point=2000,
-        end_date='2018-09-25',
+        begin_date = '2020-01-01',
+        split_point='2023-08-01',
+        validation_split_point='2023-10-01',
         load_from_file=True
     ),
 

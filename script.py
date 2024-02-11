@@ -797,11 +797,11 @@ class SensitivityRun:
         self.save_portfolios()
 
 
-iter = 200
-init_set = 20
+iter = 2
+init_set = 2
 
 models = [
-    'DQN-pattern']
+    'DQN-pattern',
     # 'DQN-vanilla',
     # 'DQN-candlerep',
     # 'DQN-windowed',
@@ -814,7 +814,8 @@ models = [
     # 'GRU',
     # 'Deep-CNN',
     # 'CNN-GRU',
-    # 'CNN-ATTN']
+    # 'CNN-ATTN'
+]
 
 params = ['Gamma', 'Batch Size', 'Reply Memory Size', 'Number of Steps', 'Number of Episodes']
 # gamma, log2(batch_size), log2(replay_memory_size), log2(n_step), n_episodes / 10
@@ -823,7 +824,7 @@ types = [torch.float64, torch.int64, torch.int64, torch.int64, torch.int64]
 
 n_step = 8
 window_size = 3
-dataset_name = "BTC-USD"
+dataset_name = "S&P"
 n_episodes = 30
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print('Running on:', device)

@@ -10,6 +10,8 @@ import seaborn as sns
 import os
 import ast
 from pathlib import Path
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 
 class YahooFinanceDataLoader:
@@ -147,15 +149,41 @@ class YahooFinanceDataLoader:
         This function is used to plot the dataset (train and test in different colors).
         @return:
         """
-        sns.set(rc={'figure.figsize': (9, 5)})
+        # Assuming self.data and other properties are already defined
         df1 = pd.Series(self.data_train_with_date.close, index=self.data.index)
         df2 = pd.Series(self.data_test_with_date.close, index=self.data.index)
-        ax = df1.plot(color='b', label='Train')
-        df2.plot(ax=ax, color='r', label='Test')
-        ax.set(xlabel='Time', ylabel='Close Price')
-        ax.set_title(f'Train and Test sections of dataset {self.DATA_NAME}')
-        plt.legend()
-        plt.savefig(f'{Path(self.DATA_PATH).parent}/DatasetImages/{self.DATA_NAME}.jpg', dpi=300)
+        df3 = pd.Series(self.data_validation_with_date.close, index=self.data.index)
+
+        # Create a subplot
+        fig = make_subplots(specs=[[{"secondary_y": False}]])
+
+        # Add traces
+        fig.add_trace(go.Scatter(x=df1.index, y=df1, mode='lines', name='Train', line=dict(color='blue')), secondary_y=False)
+        fig.add_trace(go.Scatter(x=df2.index, y=df2, mode='lines', name='Test', line=dict(color='red')), secondary_y=False)
+        fig.add_trace(go.Scatter(x=df3.index, y=df3, mode='lines', name='Validation', line=dict(color='green')), secondary_y=False)
+
+        # Set plot titles and labels
+        fig.update_layout(title_text=f'Train, Test and Validation Sections of Dataset {self.DATA_NAME}',
+                        xaxis_title='Time',
+                        yaxis_title='Close Price',
+                        legend_title="Sections")
+
+        # Define the file path prefix for saving the images
+        file_path_prefix = f'{Path(self.DATA_PATH).parent}/DatasetImages/{self.DATA_NAME}'
+
+        # Calculate the width and height in pixels (300 DPI for high-quality print)
+        dpi = 300
+        width_inches = 3.5  # Single column width in inches
+        height_inches = 2.625  # Adjusted height in inches for a 4:3 aspect ratio
+
+        # Convert inches to pixels
+        width_pixels = int(width_inches * dpi)
+        height_pixels = int(height_inches * dpi)
+
+        # Save the plot to files in different formats with dimensions suitable for single column figures
+        fig.write_image(f'{file_path_prefix}.jpg', format='jpg', width=width_pixels, height=height_pixels)
+        fig.write_image(f'{file_path_prefix}.pdf', format='pdf', width=width_pixels, height=height_pixels)
+        fig.write_image(f'{file_path_prefix}.svg', format='svg', width=width_pixels, height=height_pixels)
 
     def save_pattern(self):
         with open(
