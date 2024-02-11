@@ -32,8 +32,6 @@ class SETUPBayesianOptimizer(GP_HedgeBayesianOptimizer):
         total_reward = sum(np.exp(self.eta * np.array(list(normalized_rewards.values()))))
         probabilities = {key: np.exp(self.eta * reward) / total_reward for key, reward in normalized_rewards.items()}
 
-        print(total_reward, probabilities)
-
         # Select acquisition function based on probabilities
         acq_func_name = np.random.choice(list(probabilities.keys()), p=list(probabilities.values()))
         self.acq_history.append([probabilities, acq_func_name])

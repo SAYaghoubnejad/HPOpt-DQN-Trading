@@ -74,7 +74,6 @@ class SimpleBayesianOptimizer:
         if self.X is None or self.Y is None:
             self.X, self.Y = self.initialize_data(n_init_points)
         self.max_obj_value = torch.max(self.Y).item()
-        print(torch.where((self.Y == self.max_obj_value)[0], 1.0, 0.0))
         self.best = self.X[torch.where(self.Y == self.max_obj_value, 1.0, 0.0).to(torch.int)]
         self.history['X'].append(self.best)
         self.history['Y'].append(self.max_obj_value)
