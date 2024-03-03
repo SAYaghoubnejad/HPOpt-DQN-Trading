@@ -797,8 +797,8 @@ class SensitivityRun:
         self.save_portfolios()
 
 
-iter = 2
-init_set = 2
+iter = 200
+init_set = 20
 
 models = [
     'DQN-pattern',
