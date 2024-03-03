@@ -837,466 +837,466 @@ replay_memory_size_default = 32
 
 
 
-# Imports Optimizer
-from Optimizer.SimpleBayesianOptimizer import SimpleBayesianOptimizer
-set_random_seed(42)
-
-run = SensitivityRun(
-    dataset_name,
-    gamma_default,
-    batch_size_default,
-    replay_memory_size_default,
-    feature_size,
-    target_update,
-    n_episodes,
-    n_step,
-    window_size,
-    device,
-    evaluation_parameter='Simple BO (UCB)',
-    transaction_cost=0)
-
-for model_name  in models:
-
-    run.model_in_question = model_name
-
-    def objective_func(params):
-        print(params)
-        run.gamma = round(params[0].item(), 2)
-        run.batch_size = int(round(params[1].item()))
-        run.replay_memory_size = int(round(params[2].item()))
-        run.n_step = int(round(params[3].item()))
-        run.n_episodes = int(round(params[4].item()))
-        set_random_seed(42)
-        run.reset()
-        run.train()
-        set_random_seed()
-        run.evaluate_sensitivity()
-        eval = torch.tensor([run.average_return()])
-        X = torch.tensor([
-            round(params[0].item(), 2),
-            int(round(params[1].item())),
-            int(round(params[2].item())),
-            int(round(params[3].item())),
-            int(round(params[4].item()))
-            ])
-        return eval, X
-
-    optimizer = SimpleBayesianOptimizer(objective_func, bounds, types, name='Simple BO (UCB)')
-    run.evaluation_parameter = optimizer.optimizer_name
-    optimizer.optimize(n_steps=iter, n_init_points=init_set)
-
-    run.save_experiment()
-
-    path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/{run.model_in_question}/')
-    if not os.path.exists(path):
-        os.makedirs(path)
-    save_pkl(os.path.join(path, 'optimizer.pkl'), optimizer)
-
-    optimizer.save_plots(path)
-
-path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/')
-if not os.path.exists(path):
-    os.makedirs(path)
-save_pkl(os.path.join(path, 'run.pkl'), run)
-
-
-
-
-
-
-# Imports Optimizer
-from Optimizer.SimpleBayesianOptimizer import SimpleBayesianOptimizer
-set_random_seed(42)
-
-run = SensitivityRun(
-    dataset_name,
-    gamma_default,
-    batch_size_default,
-    replay_memory_size_default,
-    feature_size,
-    target_update,
-    n_episodes,
-    n_step,
-    window_size,
-    device,
-    evaluation_parameter='Simple BO (EI)',
-    transaction_cost=0)
-
-for model_name  in models:
-
-    run.model_in_question = model_name
-
-    def objective_func(params):
-        print(params)
-        run.gamma = round(params[0].item(), 2)
-        run.batch_size = int(round(params[1].item()))
-        run.replay_memory_size = int(round(params[2].item()))
-        run.n_step = int(round(params[3].item()))
-        run.n_episodes = int(round(params[4].item()))
-        set_random_seed(42)
-        run.reset()
-        run.train()
-        set_random_seed()
-        run.evaluate_sensitivity()
-        eval = torch.tensor([run.average_return()])
-        X = torch.tensor([
-            round(params[0].item(), 2),
-            int(round(params[1].item())),
-            int(round(params[2].item())),
-            int(round(params[3].item())),
-            int(round(params[4].item()))
-            ])
-        return eval, X
-
-    # optimizer = load_pkl('run/Simple BO/DQN-pattern/optimizer.pkl')
-
-    optimizer = SimpleBayesianOptimizer(objective_func, bounds, types, name='Simple BO (EI)')
-    run.evaluation_parameter = optimizer.optimizer_name
-    optimizer.optimize(n_steps=iter, n_init_points=init_set, acquisition_func='EI')
-
-    run.save_experiment()
-
-    path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/{run.model_in_question}/')
-    if not os.path.exists(path):
-        os.makedirs(path)
-    save_pkl(os.path.join(path, 'optimizer.pkl'), optimizer)
-
-    optimizer.save_plots(path)
-
-path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/')
-if not os.path.exists(path):
-    os.makedirs(path)
-save_pkl(os.path.join(path, 'run.pkl'), run)
-
-
-
-
-
-# Imports Optimizer
-from Optimizer.SimpleBayesianOptimizer import SimpleBayesianOptimizer
-set_random_seed(42)
-run = SensitivityRun(
-    dataset_name,
-    gamma_default,
-    batch_size_default,
-    replay_memory_size_default,
-    feature_size,
-    target_update,
-    n_episodes,
-    n_step,
-    window_size,
-    device,
-    evaluation_parameter='Simple BO (PI)',
-    transaction_cost=0)
-
-for model_name  in models:
-
-    run.model_in_question = model_name
-
-    def objective_func(params):
-        print(params)
-        run.gamma = round(params[0].item(), 2)
-        run.batch_size = int(round(params[1].item()))
-        run.replay_memory_size = int(round(params[2].item()))
-        run.n_step = int(round(params[3].item()))
-        run.n_episodes = int(round(params[4].item()))
-        set_random_seed(42)
-        run.reset()
-        run.train()
-        set_random_seed()
-        run.evaluate_sensitivity()
-        eval = torch.tensor([run.average_return()])
-        X = torch.tensor([
-            round(params[0].item(), 2),
-            int(round(params[1].item())),
-            int(round(params[2].item())),
-            int(round(params[3].item())),
-            int(round(params[4].item()))
-            ])
-        return eval, X
-
-    # optimizer = load_pkl('run/Simple BO/DQN-pattern/optimizer.pkl')
-
-    optimizer = SimpleBayesianOptimizer(objective_func, bounds, types, name='Simple BO (PI)')
-    run.evaluation_parameter = optimizer.optimizer_name
-    optimizer.optimize(n_steps=iter, n_init_points=init_set, acquisition_func='PI')
-
-    run.save_experiment()
-
-    path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/{run.model_in_question}/')
-    if not os.path.exists(path):
-        os.makedirs(path)
-    save_pkl(os.path.join(path, 'optimizer.pkl'), optimizer)
-
-    optimizer.save_plots(path)
-
-path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/')
-if not os.path.exists(path):
-    os.makedirs(path)
-save_pkl(os.path.join(path, 'run.pkl'), run)
-
-
-
-
-
-# Imports Optimizer
-from Optimizer.RandomSampling import RandomSearch
-set_random_seed(42)
-run = SensitivityRun(
-    dataset_name,
-    gamma_default,
-    batch_size_default,
-    replay_memory_size_default,
-    feature_size,
-    target_update,
-    n_episodes,
-    n_step,
-    window_size,
-    device,
-    evaluation_parameter='Random Search',
-    transaction_cost=0)
-
-for model_name  in models:
-
-    run.model_in_question = model_name
-
-    def objective_func(params):
-        print(params)
-        run.gamma = round(params[0].item(), 2)
-        run.batch_size = int(round(params[1].item()))
-        run.replay_memory_size = int(round(params[2].item()))
-        run.n_step = int(round(params[3].item()))
-        run.n_episodes = int(round(params[4].item()))
-        set_random_seed(42)
-        run.reset()
-        run.train()
-        set_random_seed()
-        run.evaluate_sensitivity()
-        eval = torch.tensor([run.average_return()])
-        X = torch.tensor([
-            round(params[0].item(), 2),
-            int(round(params[1].item())),
-            int(round(params[2].item())),
-            int(round(params[3].item())),
-            int(round(params[4].item()))
-            ])
-        return eval, X
-
-    optimizer = RandomSearch(objective_func, bounds, types, name='Random Search')
-    run.evaluation_parameter = optimizer.optimizer_name
-    optimizer.optimize(n_steps=iter, n_init_points=init_set)
-
-    run.save_experiment()
-
-    path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/{run.model_in_question}/')
-    if not os.path.exists(path):
-        os.makedirs(path)
-    save_pkl(os.path.join(path, 'optimizer.pkl'), optimizer)
-
-    optimizer.save_plots(path)
-
-path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/')
-if not os.path.exists(path):
-    os.makedirs(path)
-save_pkl(os.path.join(path, 'run.pkl'), run)
-
-
-
-
-# Imports Optimizer
-from Optimizer.GPHedgeOptimizer import GP_HedgeBayesianOptimizer
-set_random_seed(42)
-eta=0.01
-run = SensitivityRun(
-    dataset_name,
-    gamma_default,
-    batch_size_default,
-    replay_memory_size_default,
-    feature_size,
-    target_update,
-    n_episodes,
-    n_step,
-    window_size,
-    device,
-    evaluation_parameter='GP Hedge',
-    transaction_cost=0)
-
-for model_name  in models:
-
-    run.model_in_question = model_name
-
-    def objective_func(params):
-        print(params)
-        run.gamma = round(params[0].item(), 2)
-        run.batch_size = int(round(params[1].item()))
-        run.replay_memory_size = int(round(params[2].item()))
-        run.n_step = int(round(params[3].item()))
-        run.n_episodes = int(round(params[4].item()))
-        set_random_seed(42)
-        run.reset()
-        run.train()
-        set_random_seed()
-        run.evaluate_sensitivity()
-        eval = torch.tensor([run.average_return()])
-        X = torch.tensor([
-            round(params[0].item(), 2),
-            int(round(params[1].item())),
-            int(round(params[2].item())),
-            int(round(params[3].item())),
-            int(round(params[4].item()))
-            ])
-        return eval, X
-
-    optimizer = GP_HedgeBayesianOptimizer(objective_func, bounds, types, name='GP Hedge', eta=eta)
-    run.evaluation_parameter = optimizer.optimizer_name
-    optimizer.optimize(n_steps=iter, n_init_points=init_set)
-
-    run.save_experiment()
-
-    path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}_eta:{eta}/{run.model_in_question}/')
-    if not os.path.exists(path):
-        os.makedirs(path)
-    save_pkl(os.path.join(path, 'optimizer.pkl'), optimizer)
-
-    optimizer.save_plots(path)
-
-path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}_eta:{eta}/')
-if not os.path.exists(path):
-    os.makedirs(path)
-save_pkl(os.path.join(path, 'run.pkl'), run)
-
-
-
-# Imports Optimizer
-from Optimizer.NoPastBayesianOptimizer import NoPastBayesianOptimizer
-set_random_seed(42)
-eta = 0.1
-m = 0.8
-
-run = SensitivityRun(
-    dataset_name,
-    gamma_default,
-    batch_size_default,
-    replay_memory_size_default,
-    feature_size,
-    target_update,
-    n_episodes,
-    n_step,
-    window_size,
-    device,
-    evaluation_parameter='No-Past-BO',
-    transaction_cost=0)
-
-for model_name  in models:
-
-    run.model_in_question = model_name
-
-    def objective_func(params):
-        print(params)
-        run.gamma = round(params[0].item(), 2)
-        run.batch_size = int(round(params[1].item()))
-        run.replay_memory_size = int(round(params[2].item()))
-        run.n_step = int(round(params[3].item()))
-        run.n_episodes = int(round(params[4].item()))
-        set_random_seed(42)
-        run.reset()
-        run.train()
-        set_random_seed()
-        run.evaluate_sensitivity()
-        eval = torch.tensor([run.average_return()])
-        X = torch.tensor([
-            round(params[0].item(), 2),
-            int(round(params[1].item())),
-            int(round(params[2].item())),
-            int(round(params[3].item())),
-            int(round(params[4].item()))
-            ])
-        return eval, X
-
-    optimizer = NoPastBayesianOptimizer(objective_func, bounds, types, name='No-Past-BO', eta=eta, m=m)
-    run.evaluation_parameter = optimizer.optimizer_name
-    optimizer.optimize(n_steps=iter, n_init_points=init_set)
-
-    run.save_experiment()
-
-    path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}_eta:{eta}_m:{m}/{run.model_in_question}/')
-    if not os.path.exists(path):
-        os.makedirs(path)
-    save_pkl(os.path.join(path, 'optimizer.pkl'), optimizer)
-
-    optimizer.save_plots(path)
-
-path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}_eta:{eta}_m:{m}/')
-if not os.path.exists(path):
-    os.makedirs(path)
-save_pkl(os.path.join(path, 'run.pkl'), run)
-
-
-
-
-# Imports Optimizer
-from Optimizer.NoPastBayesianOptimizerVarM import NoPastBoVarM
-set_random_seed(42)
-eta = 1.0
-m_start = 0.1
-m_end = 1.0
-run = SensitivityRun(
-    dataset_name,
-    gamma_default,
-    batch_size_default,
-    replay_memory_size_default,
-    feature_size,
-    target_update,
-    n_episodes,
-    n_step,
-    window_size,
-    device,
-    evaluation_parameter='No-Past-BO-VarM',
-    transaction_cost=0)
-
-for model_name  in models:
-
-    run.model_in_question = model_name
-
-    def objective_func(params):
-        print(params)
-        run.gamma = round(params[0].item(), 2)
-        run.batch_size = int(round(params[1].item()))
-        run.replay_memory_size = int(round(params[2].item()))
-        run.n_step = int(round(params[3].item()))
-        run.n_episodes = int(round(params[4].item()))
-        set_random_seed(42)
-        run.reset()
-        run.train()
-        set_random_seed()
-        run.evaluate_sensitivity()
-        eval = torch.tensor([run.average_return()])
-        X = torch.tensor([
-            round(params[0].item(), 2),
-            int(round(params[1].item())),
-            int(round(params[2].item())),
-            int(round(params[3].item())),
-            int(round(params[4].item()))
-            ])
-        return eval, X
-
-    optimizer = NoPastBoVarM(objective_func, bounds, types, name='No-Past-BO-VarM', eta=eta, m_start=m_start, m_end=m_end)
-    run.evaluation_parameter = optimizer.optimizer_name
-    optimizer.optimize(n_steps=iter, n_init_points=init_set)
-
-    run.save_experiment()
-
-    path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}_eta:{eta}_m:{m_start}-{m_end}/{run.model_in_question}/')
-    if not os.path.exists(path):
-        os.makedirs(path)
-    save_pkl(os.path.join(path, 'optimizer.pkl'), optimizer)
-
-    optimizer.save_plots(path)
-
-path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}_eta:{eta}_m:{m_start}-{m_end}/')
-if not os.path.exists(path):
-    os.makedirs(path)
-save_pkl(os.path.join(path, 'run.pkl'), run)
+# # Imports Optimizer
+# from Optimizer.SimpleBayesianOptimizer import SimpleBayesianOptimizer
+# set_random_seed(42)
+
+# run = SensitivityRun(
+#     dataset_name,
+#     gamma_default,
+#     batch_size_default,
+#     replay_memory_size_default,
+#     feature_size,
+#     target_update,
+#     n_episodes,
+#     n_step,
+#     window_size,
+#     device,
+#     evaluation_parameter='Simple BO (UCB)',
+#     transaction_cost=0)
+
+# for model_name  in models:
+
+#     run.model_in_question = model_name
+
+#     def objective_func(params):
+#         print(params)
+#         run.gamma = round(params[0].item(), 2)
+#         run.batch_size = int(round(params[1].item()))
+#         run.replay_memory_size = int(round(params[2].item()))
+#         run.n_step = int(round(params[3].item()))
+#         run.n_episodes = int(round(params[4].item()))
+#         set_random_seed(42)
+#         run.reset()
+#         run.train()
+#         set_random_seed()
+#         run.evaluate_sensitivity()
+#         eval = torch.tensor([run.average_return()])
+#         X = torch.tensor([
+#             round(params[0].item(), 2),
+#             int(round(params[1].item())),
+#             int(round(params[2].item())),
+#             int(round(params[3].item())),
+#             int(round(params[4].item()))
+#             ])
+#         return eval, X
+
+#     optimizer = SimpleBayesianOptimizer(objective_func, bounds, types, name='Simple BO (UCB)')
+#     run.evaluation_parameter = optimizer.optimizer_name
+#     optimizer.optimize(n_steps=iter, n_init_points=init_set)
+
+#     run.save_experiment()
+
+#     path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/{run.model_in_question}/')
+#     if not os.path.exists(path):
+#         os.makedirs(path)
+#     save_pkl(os.path.join(path, 'optimizer.pkl'), optimizer)
+
+#     optimizer.save_plots(path)
+
+# path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/')
+# if not os.path.exists(path):
+#     os.makedirs(path)
+# save_pkl(os.path.join(path, 'run.pkl'), run)
+
+
+
+
+
+
+# # Imports Optimizer
+# from Optimizer.SimpleBayesianOptimizer import SimpleBayesianOptimizer
+# set_random_seed(42)
+
+# run = SensitivityRun(
+#     dataset_name,
+#     gamma_default,
+#     batch_size_default,
+#     replay_memory_size_default,
+#     feature_size,
+#     target_update,
+#     n_episodes,
+#     n_step,
+#     window_size,
+#     device,
+#     evaluation_parameter='Simple BO (EI)',
+#     transaction_cost=0)
+
+# for model_name  in models:
+
+#     run.model_in_question = model_name
+
+#     def objective_func(params):
+#         print(params)
+#         run.gamma = round(params[0].item(), 2)
+#         run.batch_size = int(round(params[1].item()))
+#         run.replay_memory_size = int(round(params[2].item()))
+#         run.n_step = int(round(params[3].item()))
+#         run.n_episodes = int(round(params[4].item()))
+#         set_random_seed(42)
+#         run.reset()
+#         run.train()
+#         set_random_seed()
+#         run.evaluate_sensitivity()
+#         eval = torch.tensor([run.average_return()])
+#         X = torch.tensor([
+#             round(params[0].item(), 2),
+#             int(round(params[1].item())),
+#             int(round(params[2].item())),
+#             int(round(params[3].item())),
+#             int(round(params[4].item()))
+#             ])
+#         return eval, X
+
+#     # optimizer = load_pkl('run/Simple BO/DQN-pattern/optimizer.pkl')
+
+#     optimizer = SimpleBayesianOptimizer(objective_func, bounds, types, name='Simple BO (EI)')
+#     run.evaluation_parameter = optimizer.optimizer_name
+#     optimizer.optimize(n_steps=iter, n_init_points=init_set, acquisition_func='EI')
+
+#     run.save_experiment()
+
+#     path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/{run.model_in_question}/')
+#     if not os.path.exists(path):
+#         os.makedirs(path)
+#     save_pkl(os.path.join(path, 'optimizer.pkl'), optimizer)
+
+#     optimizer.save_plots(path)
+
+# path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/')
+# if not os.path.exists(path):
+#     os.makedirs(path)
+# save_pkl(os.path.join(path, 'run.pkl'), run)
+
+
+
+
+
+# # Imports Optimizer
+# from Optimizer.SimpleBayesianOptimizer import SimpleBayesianOptimizer
+# set_random_seed(42)
+# run = SensitivityRun(
+#     dataset_name,
+#     gamma_default,
+#     batch_size_default,
+#     replay_memory_size_default,
+#     feature_size,
+#     target_update,
+#     n_episodes,
+#     n_step,
+#     window_size,
+#     device,
+#     evaluation_parameter='Simple BO (PI)',
+#     transaction_cost=0)
+
+# for model_name  in models:
+
+#     run.model_in_question = model_name
+
+#     def objective_func(params):
+#         print(params)
+#         run.gamma = round(params[0].item(), 2)
+#         run.batch_size = int(round(params[1].item()))
+#         run.replay_memory_size = int(round(params[2].item()))
+#         run.n_step = int(round(params[3].item()))
+#         run.n_episodes = int(round(params[4].item()))
+#         set_random_seed(42)
+#         run.reset()
+#         run.train()
+#         set_random_seed()
+#         run.evaluate_sensitivity()
+#         eval = torch.tensor([run.average_return()])
+#         X = torch.tensor([
+#             round(params[0].item(), 2),
+#             int(round(params[1].item())),
+#             int(round(params[2].item())),
+#             int(round(params[3].item())),
+#             int(round(params[4].item()))
+#             ])
+#         return eval, X
+
+#     # optimizer = load_pkl('run/Simple BO/DQN-pattern/optimizer.pkl')
+
+#     optimizer = SimpleBayesianOptimizer(objective_func, bounds, types, name='Simple BO (PI)')
+#     run.evaluation_parameter = optimizer.optimizer_name
+#     optimizer.optimize(n_steps=iter, n_init_points=init_set, acquisition_func='PI')
+
+#     run.save_experiment()
+
+#     path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/{run.model_in_question}/')
+#     if not os.path.exists(path):
+#         os.makedirs(path)
+#     save_pkl(os.path.join(path, 'optimizer.pkl'), optimizer)
+
+#     optimizer.save_plots(path)
+
+# path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/')
+# if not os.path.exists(path):
+#     os.makedirs(path)
+# save_pkl(os.path.join(path, 'run.pkl'), run)
+
+
+
+
+
+# # Imports Optimizer
+# from Optimizer.RandomSampling import RandomSearch
+# set_random_seed(42)
+# run = SensitivityRun(
+#     dataset_name,
+#     gamma_default,
+#     batch_size_default,
+#     replay_memory_size_default,
+#     feature_size,
+#     target_update,
+#     n_episodes,
+#     n_step,
+#     window_size,
+#     device,
+#     evaluation_parameter='Random Search',
+#     transaction_cost=0)
+
+# for model_name  in models:
+
+#     run.model_in_question = model_name
+
+#     def objective_func(params):
+#         print(params)
+#         run.gamma = round(params[0].item(), 2)
+#         run.batch_size = int(round(params[1].item()))
+#         run.replay_memory_size = int(round(params[2].item()))
+#         run.n_step = int(round(params[3].item()))
+#         run.n_episodes = int(round(params[4].item()))
+#         set_random_seed(42)
+#         run.reset()
+#         run.train()
+#         set_random_seed()
+#         run.evaluate_sensitivity()
+#         eval = torch.tensor([run.average_return()])
+#         X = torch.tensor([
+#             round(params[0].item(), 2),
+#             int(round(params[1].item())),
+#             int(round(params[2].item())),
+#             int(round(params[3].item())),
+#             int(round(params[4].item()))
+#             ])
+#         return eval, X
+
+#     optimizer = RandomSearch(objective_func, bounds, types, name='Random Search')
+#     run.evaluation_parameter = optimizer.optimizer_name
+#     optimizer.optimize(n_steps=iter, n_init_points=init_set)
+
+#     run.save_experiment()
+
+#     path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/{run.model_in_question}/')
+#     if not os.path.exists(path):
+#         os.makedirs(path)
+#     save_pkl(os.path.join(path, 'optimizer.pkl'), optimizer)
+
+#     optimizer.save_plots(path)
+
+# path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}/')
+# if not os.path.exists(path):
+#     os.makedirs(path)
+# save_pkl(os.path.join(path, 'run.pkl'), run)
+
+
+
+
+# # Imports Optimizer
+# from Optimizer.GPHedgeOptimizer import GP_HedgeBayesianOptimizer
+# set_random_seed(42)
+# eta=0.01
+# run = SensitivityRun(
+#     dataset_name,
+#     gamma_default,
+#     batch_size_default,
+#     replay_memory_size_default,
+#     feature_size,
+#     target_update,
+#     n_episodes,
+#     n_step,
+#     window_size,
+#     device,
+#     evaluation_parameter='GP Hedge',
+#     transaction_cost=0)
+
+# for model_name  in models:
+
+#     run.model_in_question = model_name
+
+#     def objective_func(params):
+#         print(params)
+#         run.gamma = round(params[0].item(), 2)
+#         run.batch_size = int(round(params[1].item()))
+#         run.replay_memory_size = int(round(params[2].item()))
+#         run.n_step = int(round(params[3].item()))
+#         run.n_episodes = int(round(params[4].item()))
+#         set_random_seed(42)
+#         run.reset()
+#         run.train()
+#         set_random_seed()
+#         run.evaluate_sensitivity()
+#         eval = torch.tensor([run.average_return()])
+#         X = torch.tensor([
+#             round(params[0].item(), 2),
+#             int(round(params[1].item())),
+#             int(round(params[2].item())),
+#             int(round(params[3].item())),
+#             int(round(params[4].item()))
+#             ])
+#         return eval, X
+
+#     optimizer = GP_HedgeBayesianOptimizer(objective_func, bounds, types, name='GP Hedge', eta=eta)
+#     run.evaluation_parameter = optimizer.optimizer_name
+#     optimizer.optimize(n_steps=iter, n_init_points=init_set)
+
+#     run.save_experiment()
+
+#     path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}_eta:{eta}/{run.model_in_question}/')
+#     if not os.path.exists(path):
+#         os.makedirs(path)
+#     save_pkl(os.path.join(path, 'optimizer.pkl'), optimizer)
+
+#     optimizer.save_plots(path)
+
+# path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}_eta:{eta}/')
+# if not os.path.exists(path):
+#     os.makedirs(path)
+# save_pkl(os.path.join(path, 'run.pkl'), run)
+
+
+
+# # Imports Optimizer
+# from Optimizer.NoPastBayesianOptimizer import NoPastBayesianOptimizer
+# set_random_seed(42)
+# eta = 0.1
+# m = 0.8
+
+# run = SensitivityRun(
+#     dataset_name,
+#     gamma_default,
+#     batch_size_default,
+#     replay_memory_size_default,
+#     feature_size,
+#     target_update,
+#     n_episodes,
+#     n_step,
+#     window_size,
+#     device,
+#     evaluation_parameter='No-Past-BO',
+#     transaction_cost=0)
+
+# for model_name  in models:
+
+#     run.model_in_question = model_name
+
+#     def objective_func(params):
+#         print(params)
+#         run.gamma = round(params[0].item(), 2)
+#         run.batch_size = int(round(params[1].item()))
+#         run.replay_memory_size = int(round(params[2].item()))
+#         run.n_step = int(round(params[3].item()))
+#         run.n_episodes = int(round(params[4].item()))
+#         set_random_seed(42)
+#         run.reset()
+#         run.train()
+#         set_random_seed()
+#         run.evaluate_sensitivity()
+#         eval = torch.tensor([run.average_return()])
+#         X = torch.tensor([
+#             round(params[0].item(), 2),
+#             int(round(params[1].item())),
+#             int(round(params[2].item())),
+#             int(round(params[3].item())),
+#             int(round(params[4].item()))
+#             ])
+#         return eval, X
+
+#     optimizer = NoPastBayesianOptimizer(objective_func, bounds, types, name='No-Past-BO', eta=eta, m=m)
+#     run.evaluation_parameter = optimizer.optimizer_name
+#     optimizer.optimize(n_steps=iter, n_init_points=init_set)
+
+#     run.save_experiment()
+
+#     path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}_eta:{eta}_m:{m}/{run.model_in_question}/')
+#     if not os.path.exists(path):
+#         os.makedirs(path)
+#     save_pkl(os.path.join(path, 'optimizer.pkl'), optimizer)
+
+#     optimizer.save_plots(path)
+
+# path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}_eta:{eta}_m:{m}/')
+# if not os.path.exists(path):
+#     os.makedirs(path)
+# save_pkl(os.path.join(path, 'run.pkl'), run)
+
+
+
+
+# # Imports Optimizer
+# from Optimizer.NoPastBayesianOptimizerVarM import NoPastBoVarM
+# set_random_seed(42)
+# eta = 1.0
+# m_start = 0.1
+# m_end = 1.0
+# run = SensitivityRun(
+#     dataset_name,
+#     gamma_default,
+#     batch_size_default,
+#     replay_memory_size_default,
+#     feature_size,
+#     target_update,
+#     n_episodes,
+#     n_step,
+#     window_size,
+#     device,
+#     evaluation_parameter='No-Past-BO-VarM',
+#     transaction_cost=0)
+
+# for model_name  in models:
+
+#     run.model_in_question = model_name
+
+#     def objective_func(params):
+#         print(params)
+#         run.gamma = round(params[0].item(), 2)
+#         run.batch_size = int(round(params[1].item()))
+#         run.replay_memory_size = int(round(params[2].item()))
+#         run.n_step = int(round(params[3].item()))
+#         run.n_episodes = int(round(params[4].item()))
+#         set_random_seed(42)
+#         run.reset()
+#         run.train()
+#         set_random_seed()
+#         run.evaluate_sensitivity()
+#         eval = torch.tensor([run.average_return()])
+#         X = torch.tensor([
+#             round(params[0].item(), 2),
+#             int(round(params[1].item())),
+#             int(round(params[2].item())),
+#             int(round(params[3].item())),
+#             int(round(params[4].item()))
+#             ])
+#         return eval, X
+
+#     optimizer = NoPastBoVarM(objective_func, bounds, types, name='No-Past-BO-VarM', eta=eta, m_start=m_start, m_end=m_end)
+#     run.evaluation_parameter = optimizer.optimizer_name
+#     optimizer.optimize(n_steps=iter, n_init_points=init_set)
+
+#     run.save_experiment()
+
+#     path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}_eta:{eta}_m:{m_start}-{m_end}/{run.model_in_question}/')
+#     if not os.path.exists(path):
+#         os.makedirs(path)
+#     save_pkl(os.path.join(path, 'optimizer.pkl'), optimizer)
+
+#     optimizer.save_plots(path)
+
+# path = os.path.join(os.getcwd(), f'run/{optimizer.optimizer_name}_eta:{eta}_m:{m_start}-{m_end}/')
+# if not os.path.exists(path):
+#     os.makedirs(path)
+# save_pkl(os.path.join(path, 'run.pkl'), run)
 
 
 

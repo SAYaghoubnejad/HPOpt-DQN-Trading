@@ -49,6 +49,7 @@ class SETUPBayesianOptimizer(GP_HedgeBayesianOptimizer):
         return next_point, acq_func_name
 
     def sample_hyperparameters(self):
+        print(self.beta_param)
         self.eta = gamma.rvs(self.alpha, scale=1/self.beta_param)
         self.m = beta.rvs(self.a, self.b)
         self.m_history.append(self.m)
@@ -64,7 +65,7 @@ class SETUPBayesianOptimizer(GP_HedgeBayesianOptimizer):
         # Calculate normalized rewards
         r_min = min(self.acquisition_rewards.values())
         r_max = max(self.acquisition_rewards.values())
-        normalized_rewards = {key: (reward - r_max) / (r_max - r_min) if r_max != r_min else 0 for key, reward in self.acquisition_rewards.items()}
+        normalized_rewards = {key: (r_max - reward) / (r_max - r_min) if r_max != r_min else 0 for key, reward in self.acquisition_rewards.items()}
         self.beta_param += normalized_rewards[acq_func_name]
 
     def update_acquisition_rewards(self, acq_func_name, x):
