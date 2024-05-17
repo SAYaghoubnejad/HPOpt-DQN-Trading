@@ -121,7 +121,7 @@ def plot_optimization_progress(optimizer, init_set):
     # Show the plot    
     fig.show()
 
-def plot_prob_accusition(optimizer):
+def plot_prob_accusition(optimizer, plot_path=None):
     PI_values = [item[0]['PI'] for item in optimizer.acq_history]
     EI_values = [item[0]['EI'] for item in optimizer.acq_history]
     UCB_values = [item[0]['UCB'] for item in optimizer.acq_history]
@@ -165,3 +165,21 @@ def plot_prob_accusition(optimizer):
 
     # Display the figure
     fig.show()
+    if plot_path:
+        if not os.path.exists(plot_path):
+            os.makedirs(plot_path)
+
+        # Calculate the width and height in pixels (300 DPI for high-quality print)
+        dpi = 300
+        width_inches = 3.5  # Single column width in inches
+        height_inches = 2.625  # Adjusted height in inches for a 4:3 aspect ratio
+
+        # Convert inches to pixels
+        width_pixels = int(width_inches * dpi)
+        height_pixels = int(height_inches * dpi)
+
+        # Save the plot to files in different formats with dimensions suitable for single column figures
+        fig.write_html(f'{plot_path}/{optimizer.optimizer_name}_accusition_prob.html')
+        save_format = ['pdf', 'svg', 'jpg']
+        for f in save_format:
+            fig.write_image(f'{plot_path}/{optimizer.optimizer_name}_accusition_prob.{f}', format=f, width=width_pixels, height=height_pixels)

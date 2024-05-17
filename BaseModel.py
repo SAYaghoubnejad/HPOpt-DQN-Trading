@@ -29,9 +29,11 @@ import plotly.express as px
 DATA_LOADERS = {
     'BTC-USD': YahooFinanceDataLoader(
         'BTC-USD',
-        split_point='2021-01-01',
-        validation_split_point='2023-01-01',
-        load_from_file=True
+        begin_date='2021-01-01',
+        split_point='2023-10-01',
+        validation_split_point='2024-01-01',
+        end_date='2024-03-01',
+        load_from_file=False
     ),
 
     'GOOGL': YahooFinanceDataLoader(
@@ -61,9 +63,8 @@ DATA_LOADERS = {
 
     'S&P': YahooFinanceDataLoader(
         'S&P',
-        begin_date = '2020-01-01',
-        split_point='2023-08-01',
-        validation_split_point='2023-10-01',
+        split_point='2022-01-01',
+        validation_split_point='2023-01-01',
         load_from_file=True
     ),
 
@@ -104,6 +105,7 @@ DATA_LOADERS = {
     )
 }
 
+DATA_LOADERS['BTC-USD'].plot_data()
 
 class SensitivityRun:
     def __init__(self,
